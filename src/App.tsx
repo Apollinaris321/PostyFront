@@ -1,5 +1,5 @@
 import React from 'react';
-import { Solver } from './components/Solver';
+import { Homefeed } from './components/Main';
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         </a>
       </header>
       <div>
-        <Solver></Solver>
+        <Homefeed></Homefeed>
       </div>
     </div>
   );
