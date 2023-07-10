@@ -1,5 +1,5 @@
 import React from 'react';
-import { Homefeed } from './components/Main';
+import { Homefeed } from './components/Homefeed';
 
 function App() {
   return (
