@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { AddPost, Post, PostResponse } from "./Post";
-import { Auth } from "./Auth";
+import { Auth, Logout } from "./Auth";
 import { url } from "./Url";
+import { Button } from "react-bootstrap";
 
 export function Homefeed(){
     const [postResponse, setPostResponse] = useState<PostResponse | null>(null)
@@ -54,18 +55,20 @@ export function Homefeed(){
                 }
             })])
         }else if(operation == "add"){
-            setPosts([...posts, {...newPost}])
+            setPosts([{...newPost}, ...posts])
         }
     }
 
     return(
         <div>
-            new post:
-            <AddPost updatePost={handlePostChange}></AddPost>
+            logout: 
+            <Logout></Logout>
             login:
             <Auth></Auth>
+            new post:
+            <AddPost updatePost={handlePostChange}></AddPost>
             <div>
-                <button onClick={loadMorePosts}>more</button>
+                <Button onClick={loadMorePosts} variant="primary">more</Button>
             </div>
             <div>
                 Posts:

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Homefeed } from './components/Homefeed';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (

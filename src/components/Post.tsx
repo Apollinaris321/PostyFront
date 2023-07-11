@@ -2,6 +2,7 @@ import axios from "axios"
 import { url } from "./Url"
 import { useState, useEffect, FormEvent } from "react"
 import { Comment, CommentResponse } from "./Comment"
+import { Button, Form } from "react-bootstrap"
 
 export type PostResponse = {
     currentPage : number,
@@ -82,7 +83,7 @@ export function Post({post , updatePost} : PostProps ){
         }
     }
 
-    function handleCommentInput(e : React.FormEvent<HTMLInputElement>){
+    function handleCommentInput(e : React.ChangeEvent<HTMLInputElement>){
         setCommentValue(e.currentTarget.value);
     }
 
@@ -118,13 +119,18 @@ export function Post({post , updatePost} : PostProps ){
             <div>
                 <div>
                     <UpdatePost post={post} updatePost={updatePost}></UpdatePost>
-                    <button onClick={deletePost}>delete</button>
-                    <button onClick={handleLike}>like</button>
-                    <button onClick={handleDislike}>dislike</button>
-                    <button id={post.id.toString()} onClick={getMoreComments}>more</button>
+                    <Button onClick={deletePost} variant="primary">delete</Button>
+                    <Button onClick={handleLike} variant="primary">like</Button>
+                    <Button onClick={handleDislike} variant="primary">dislike</Button>
+                    <Button id={post.id.toString()} onClick={getMoreComments} variant="primary">more</Button>
                     <div>
-                        <input onChange={handleCommentInput} value={commentValue}></input>
-                        <button onClick={sendComment}>send com</button>
+                        <Form>
+                          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Comment</Form.Label>
+                            <Form.Control type="text" onChange={handleCommentInput} value={commentValue}/>
+                          </Form.Group>
+                        </Form>
+                        <Button onClick={sendComment}>send com</Button>
                     </div>
                     {comments.map((c : any) => 
                         <div key={c.id}>
@@ -147,11 +153,11 @@ function UpdatePost(props : UpdatePostProp){
     const [text, setText] = useState(props.post.text)
     const [edit, setEdit] = useState(false)
 
-    function handleTextEditChange(e : FormEvent<HTMLInputElement>){
+    function handleTextEditChange(e : React.ChangeEvent<HTMLInputElement>){
         setText(e.currentTarget.value)
     }
 
-    function handleTitleEditChange(e : FormEvent<HTMLInputElement>){
+    function handleTitleEditChange(e : React.ChangeEvent<HTMLInputElement>){
         setTitle(e.currentTarget.value)
     }
 
@@ -168,13 +174,21 @@ function UpdatePost(props : UpdatePostProp){
     }
     return(
         <div>
-            <button onClick={() => setEdit(edit ? false : true)}>edit</button>
+            <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
             {
                 edit ? 
                 <div>
-                    <input onChange={handleTitleEditChange} value={title}></input>
-                    <input onChange={handleTextEditChange} value={text}></input>
-                    <button onClick={handleEditPost}>update</button>
+                    <Form>
+                      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control type="text" onChange={handleTitleEditChange} value={title}/>
+                      </Form.Group>
+                      <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                        <Form.Label>Text</Form.Label>
+                        <Form.Control type="text" onChange={handleTextEditChange} value={text}/>
+                      </Form.Group>
+                    </Form>
+                    <Button onClick={handleEditPost}>update</Button>
                 </div>
                 :
                 null
@@ -193,11 +207,11 @@ export function AddPost(props: AddPostProp){
     const [title , setTitle] = useState("")
     const [text , setText] = useState("")
 
-    function handleTextChange(e : FormEvent<HTMLInputElement>){
+    function handleTextChange(e : React.ChangeEvent<HTMLInputElement>){
         setText(e.currentTarget.value)
     }
 
-    function handleTitleChange(e : FormEvent<HTMLInputElement>){
+    function handleTitleChange(e : React.ChangeEvent<HTMLInputElement>){
         setTitle(e.currentTarget.value)
     }
 
@@ -209,9 +223,17 @@ export function AddPost(props: AddPostProp){
 
     return(
         <div>
-            <input onChange={handleTitleChange} value={title}></input>
-            <input onChange={handleTextChange} value={text}></input>
-            <button onClick={sendPost}>post it!</button>
+            <Form>
+              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                <Form.Label>Title</Form.Label>
+                <Form.Control type="text" onChange={handleTitleChange} value={title}/>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                <Form.Label>Text</Form.Label>
+                <Form.Control type="text" onChange={handleTextChange} value={text}/>
+              </Form.Group>
+            </Form>
+            <Button onClick={sendPost}>post it!</Button>
         </div>
     )
 }

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, FormEvent } from "react";
 import { url } from "./Url";
+import { Button, Form } from "react-bootstrap";
 
 export type Comment = {
     authorName : string,
@@ -58,9 +59,9 @@ export function Comment({comment , updateComment} : CommentProps){
         <div>
             Comment: 
             <UpdateComment comment={comment} updateComment={updateComment}></UpdateComment>
-            <button onClick={handleDeleteComment}>delete</button>
-            <button onClick={likeComment}>like</button>
-            <button onClick={dislikeComment}>dislike</button>
+            <Button onClick={handleDeleteComment}>delete</Button>
+            <Button onClick={likeComment}>like</Button>
+            <Button onClick={dislikeComment}>dislike</Button>
             -- 
             {JSON.stringify(comment)}
         </div>
@@ -87,18 +88,23 @@ export function UpdateComment(props : UpdateCommentProp){
         }
     }
 
-    function handleCommentTextChange(e : FormEvent<HTMLInputElement>){
+    function handleCommentTextChange(e : React.ChangeEvent<HTMLInputElement>){
         setText(e.currentTarget.value)
     }
 
     return(
         <div>
-            <button onClick={() => {setEdit(edit ? false : true)}}>edit</button>
+            <Button onClick={() => {setEdit(edit ? false : true)}}>edit</Button>
             {
                 edit ? 
                 <div>
-                    <input onChange={handleCommentTextChange} value={text}></input>
-                    <button onClick={handleEditComment}>update</button>
+                    <Form>
+                      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>edit comment: </Form.Label>
+                        <Form.Control type="text" onChange={handleCommentTextChange} value={text}/>
+                      </Form.Group>
+                    </Form>
+                    <Button onClick={handleEditComment} variant="primary">update</Button>
                 </div>
                 :
                 null
