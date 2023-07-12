@@ -1,6 +1,7 @@
 import React from 'react';
 import { Homefeed } from './components/Homefeed';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Router } from 'react-router';
 
 function App() {
   return (
@@ -18,9 +19,6 @@ function App() {
           Learn Reactaa
         </a>
       </header>
-      <div>
-        <Homefeed></Homefeed>
-      </div>
     </div>
   );
 }

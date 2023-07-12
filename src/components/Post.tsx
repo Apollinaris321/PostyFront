@@ -2,7 +2,9 @@ import axios from "axios"
 import { url } from "./Url"
 import { useState, useEffect, FormEvent } from "react"
 import { Comment, CommentResponse } from "./Comment"
-import { Button, Form } from "react-bootstrap"
+import { Button, Form, Pagination } from "react-bootstrap"
+import { useParams } from "react-router"
+import { Link } from "react-router-dom"
 
 export type PostResponse = {
     currentPage : number,
@@ -17,6 +19,19 @@ export type Post = {
     authorName : string
     createdAt : string
     likes : number
+}
+
+export function PostDisplay(){
+    const {id} = useParams(); 
+    useEffect(() => {
+        console.log("rendering post...");
+    },[])
+    return(
+        <div>
+            id: {id}
+            <Link to={"/"}>back</Link>
+        </div>
+    )
 }
 
 export type PostProps = {
@@ -40,14 +55,22 @@ export function Post({post , updatePost} : PostProps ){
     async function getMoreComments(){
         if(commentResponse != null){
             if(commentResponse.currentPage != commentResponse.lastPage){
-                const response = await axios.get(url + `/post/${post.id}/comments`, {withCredentials : true})
-                setComments([...comments, ...commentResponse.comments])
-                setCommentResponse(response.data)
+                try{
+                    const response = await axios.get(url + `/post/${post.id}/comments`, {withCredentials : true})
+                    setComments([...comments, ...commentResponse.comments])
+                    setCommentResponse(response.data)
+                }catch(error){
+                    console.log("error more comments: ", error);
+                }
             }
         }else{
-            const response = await axios.get(url + `/post/${post.id}/comments`, {withCredentials : true})
-            setComments([...response.data.comments])
-            setCommentResponse(response.data)
+            try{
+                const response = await axios.get(url + `/post/${post.id}/comments`, {withCredentials : true})
+                setComments([...response.data.comments])
+                setCommentResponse(response.data)
+            }catch(error){
+                console.log("get more comments error: ", error);
+            }
         }
     }
     
@@ -216,9 +239,13 @@ export function AddPost(props: AddPostProp){
     }
 
     async function sendPost(){
-        const response = await axios.post(url + '/post', {title : title, text : text}, {withCredentials : true})
-        props.updatePost(response.data as Post, "add")
-        console.log(response.data);
+        try{
+            const response = await axios.post(url + '/post', {title : title, text : text}, {withCredentials : true})
+            props.updatePost(response.data as Post, "add")
+            console.log(response.data);
+        }catch(error){
+            console.log("send post error: ", error);
+        }
     }
 
     return(
@@ -230,7 +257,7 @@ export function AddPost(props: AddPostProp){
               </Form.Group>
               <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
                 <Form.Label>Text</Form.Label>
-                <Form.Control type="text" onChange={handleTextChange} value={text}/>
+                <Form.Control  as="textarea" rows={3} type="text" onChange={handleTextChange} value={text}/> 
               </Form.Group>
             </Form>
             <Button onClick={sendPost}>post it!</Button>

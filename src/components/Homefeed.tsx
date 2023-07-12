@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { AddPost, Post, PostResponse } from "./Post";
 import { Auth, Logout } from "./Auth";
 import { url } from "./Url";
-import { Button } from "react-bootstrap";
+import { Button, Pagination } from "react-bootstrap";
+import { Link, ScrollRestoration } from "react-router-dom";
 
 export function Homefeed(){
     const [postResponse, setPostResponse] = useState<PostResponse | null>(null)
@@ -11,6 +12,8 @@ export function Homefeed(){
 
 
     useEffect(() => {
+        console.log("rendering...");
+        
         const getPostsUseEffect = async () => {
             await getPosts();
         }
@@ -60,26 +63,43 @@ export function Homefeed(){
     }
 
     return(
-        <div>
-            logout: 
-            <Logout></Logout>
-            login:
-            <Auth></Auth>
-            new post:
-            <AddPost updatePost={handlePostChange}></AddPost>
-            <div>
-                <Button onClick={loadMorePosts} variant="primary">more</Button>
+        <div className="row">
+            <div className="col"></div>
+            <div className="col">
+                logout: 
+                <Logout></Logout>
+                login:
+                <Auth></Auth>
+                new post:
+                <AddPost updatePost={handlePostChange}></AddPost>
+                <div>
+                    <Button onClick={loadMorePosts} variant="primary">more</Button>
+                </div>
+                <div>
+                    Posts:
+                    {
+                    posts.map((p : Post) => 
+                        <div key={p.id}>
+                            <Link to={`post/${p.id}`}>
+                                <Post post={p} updatePost={handlePostChange}></Post>
+                            </Link>
+                        </div>
+                        ) 
+                    }
+                </div>
             </div>
-            <div>
-                Posts:
-                {
-                posts.map((p : Post) => 
-                    <div key={p.id}>
-                        <Post post={p} updatePost={handlePostChange}></Post>
-                    </div>
-                    ) 
-                }
-            </div>
+            <div className="col"></div>
+
+            <Pagination>
+              <Pagination.First />
+              <Pagination.Prev />
+              <Pagination.Item active>{postResponse?.currentPage}</Pagination.Item>
+              <Pagination.Item >{2}</Pagination.Item>
+              <Pagination.Ellipsis />
+              <Pagination.Item >{5}</Pagination.Item>
+              <Pagination.Next />
+              <Pagination.Last />
+            </Pagination>
         </div>
     )
 }
