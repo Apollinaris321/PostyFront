@@ -4,7 +4,7 @@ import { AddPost, Post, PostResponse } from "./Post";
 import { Auth, Logout } from "./Auth";
 import { url } from "./Url";
 import { Button, Pagination } from "react-bootstrap";
-import { Link, ScrollRestoration } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export function Homefeed(){
     const [postResponse, setPostResponse] = useState<PostResponse | null>(null)
@@ -19,7 +19,6 @@ export function Homefeed(){
         }
         getPostsUseEffect();
     },[])
-
 
     async function getPosts(){
         try{
@@ -91,14 +90,23 @@ export function Homefeed(){
             <div className="col"></div>
 
             <Pagination>
-              <Pagination.First />
-              <Pagination.Prev />
-              <Pagination.Item active>{postResponse?.currentPage}</Pagination.Item>
-              <Pagination.Item >{2}</Pagination.Item>
-              <Pagination.Ellipsis />
-              <Pagination.Item >{5}</Pagination.Item>
-              <Pagination.Next />
-              <Pagination.Last />
+                <Pagination.First />
+                <Pagination.Item active={postResponse?.currentPage == 1}>
+                    <Link to={"post/1"}>
+                        {1}
+                    </Link>
+                </Pagination.Item>
+                <Pagination.Item active={postResponse?.currentPage == 2}>
+                    <Link to={"post/2"}>
+                        {2}
+                    </Link>
+                </Pagination.Item>
+                <Pagination.Item  active={postResponse?.currentPage == 3}>
+                    <Link to={"post/3"}>
+                        {3}
+                    </Link>
+                </Pagination.Item>
+                <Pagination.Last />
             </Pagination>
         </div>
     )

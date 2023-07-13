@@ -21,15 +21,111 @@ export type Post = {
     likes : number
 }
 
+type PageProps = {
+    page : number
+}
+
+// ich brauch keine links das unten sind nur buttons die die id angeben
+// also oben header unten footer (paginator) in der mitte content -> wird geladen anhand der page-id auf der man gerade ist
+// load initial mit page-1
+export function Page({page} : PageProps){
+    const [pages, setPages] = useState([...calcPageArray(page)])
+    useEffect(() => {
+        setPages([...calcPageArray(page)])
+    },[page])
+
+    function calcPageArray(currentPage : number) : number[]{
+        const firstPage = 1
+        const lastPage = 20
+        const range = 5
+        const buffer = Math.floor(range/2)
+        let start = currentPage - buffer
+        let end = currentPage + buffer 
+        if(currentPage < 3){
+            start = firstPage 
+            end = start + range - 1
+        }
+        if(currentPage > lastPage - buffer){
+            start = lastPage - range + 1 
+            end = lastPage
+        }
+        const arr = []
+        for(let i = start;i<=end;i++){
+            arr.push(i)
+        }
+        return arr
+    }
+
+    return(
+        <div>
+            <Pagination>
+                <Pagination.First>
+                    <Link to={`../post/1`}>
+                        First
+                    </Link>
+                </Pagination.First>
+                {pages.map(p => {
+                    return(
+                    <Pagination.Item active={page == p}>
+                        <Link to={`../post/${p}`}>
+                            {p}
+                        </Link>
+                    </Pagination.Item>
+                    )
+                })}
+                <Pagination.Last>
+                    <Link to={`../post/6`}>
+                        Last
+                    </Link>
+                </Pagination.Last>
+            </Pagination>
+        </div>
+    )
+}
+
 export function PostDisplay(){
     const {id} = useParams(); 
+    const [postResponse, setPostResponse] = useState<PostResponse | null>(null)
+    const [posts, setPosts] = useState<Post[]>([])
+
+
     useEffect(() => {
-        console.log("rendering post...");
+        console.log("rendering...");
+        
+        const getPostsUseEffect = async () => {
+            await loadPosts();
+        }
+        getPostsUseEffect();
     },[])
+
+    async function getPosts(){
+        try{
+            const response = await axios.get(url + "/post/feed", {withCredentials : true});
+            console.log(response);
+            
+            const postResponse = response.data as PostResponse
+            setPostResponse(postResponse)
+            setPosts([...posts, ...postResponse.posts])
+        }catch(error){
+            console.log("getBlogs error :", error);
+        }
+    }
+
+    async function loadPosts(){
+        try{
+            const response = await axios.get(url + `/post/feed?pageSize=10&pageNumber=${id}&sort=new`, {withCredentials : true});
+            setPostResponse(response.data as PostResponse)
+            setPosts([...posts, ...response.data.posts])
+        }catch(error){
+            console.log("load more posts error: ", error);
+        }
+    }
+
     return(
         <div>
             id: {id}
             <Link to={"/"}>back</Link>
+            <Page page={id ? parseInt(id) : 1}></Page>
         </div>
     )
 }
