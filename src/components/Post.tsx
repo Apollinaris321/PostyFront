@@ -22,39 +22,55 @@ export type Post = {
 }
 
 type PageProps = {
-    page : number
+    page : number,
+    lastPage : number
 }
 
-// ich brauch keine links das unten sind nur buttons die die id angeben
-// also oben header unten footer (paginator) in der mitte content -> wird geladen anhand der page-id auf der man gerade ist
-// load initial mit page-1
-export function Page({page} : PageProps){
-    const [pages, setPages] = useState([...calcPageArray(page)])
+export function Page({page, lastPage} : PageProps){
+    const [pages, setPages] = useState([...calc()])
 
     useEffect(() => {
-        setPages([...calcPageArray(page)])
-    },[page])
+        setPages([...calc()])
+    },[page, lastPage])
 
-    function calcPageArray(currentPage : number) : number[]{
-        const firstPage = 1
-        const lastPage = 20
-        const range = 5
-        const buffer = Math.floor(range/2)
-        let start = currentPage - buffer
-        let end = currentPage + buffer 
-        if(currentPage < 3){
-            start = firstPage 
-            end = start + range - 1
+    function calc() : number[]{
+        const range = 4
+        const halfRange = Math.floor(range/2)
+        let start = page
+        let end = page 
+        const minStart = 1
+        const maxEnd = lastPage
+
+        if(lastPage > range){
+
+        for(let i=0;i<=range;){
+            console.log("stuck");
+            
+            if(start > minStart){
+                start -= 1
+                i += 1
+            }
+            if(end < maxEnd && i<range){
+                end += 1
+                i += 1
+            }
+            if(i==range){
+                break
+            }
+            if(maxEnd == minStart){
+                break
+            }
         }
-        if(currentPage > lastPage - buffer){
-            start = lastPage - range + 1 
-            end = lastPage
+        }else{
+            end = maxEnd
+            start = minStart
         }
-        const arr = []
-        for(let i = start;i<=end;i++){
-            arr.push(i)
+
+        const arr : number[] = [] 
+        for(let i = start;i <= end;i++){
+            arr.push(i);
         }
-        return arr
+        return  arr
     }
 
     return(
@@ -91,7 +107,6 @@ export function PostDisplay(){
 
 
     useEffect(() => {
-        console.log("rendering...");
         const getPostsUseEffect = async () => {
             await loadPosts();
         }
@@ -117,11 +132,22 @@ export function PostDisplay(){
                     return(
                     <div key={p.id}>
                         {p.title}, {p.text}, author: {p.authorName}
+                        <Link to={`../postpage/${p.id}`}>
+                            Click me!
+                        </Link>
                     </div>
                     )
                 })}
             </div>
-            <Page page={id ? parseInt(id) : 1}></Page>
+            <Page page={id ? parseInt(id) : 1} lastPage={postResponse?.lastPage ? postResponse.lastPage : 1}></Page>
+        </div>
+    )
+}
+
+export function PostAlone() {
+    return(
+        <div>
+            Bonjour!
         </div>
     )
 }

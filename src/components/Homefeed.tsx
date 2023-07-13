@@ -79,9 +79,7 @@ export function Homefeed(){
                     {
                     posts.map((p : Post) => 
                         <div key={p.id}>
-                            <Link to={`post/${p.id}`}>
-                                <Post post={p} updatePost={handlePostChange}></Post>
-                            </Link>
+                            <Post post={p} updatePost={handlePostChange}></Post>
                         </div>
                         ) 
                     }
@@ -89,25 +87,6 @@ export function Homefeed(){
             </div>
             <div className="col"></div>
 
-            <Pagination>
-                <Pagination.First />
-                <Pagination.Item active={postResponse?.currentPage == 1}>
-                    <Link to={"post/1"}>
-                        {1}
-                    </Link>
-                </Pagination.Item>
-                <Pagination.Item active={postResponse?.currentPage == 2}>
-                    <Link to={"post/2"}>
-                        {2}
-                    </Link>
-                </Pagination.Item>
-                <Pagination.Item  active={postResponse?.currentPage == 3}>
-                    <Link to={"post/3"}>
-                        {3}
-                    </Link>
-                </Pagination.Item>
-                <Pagination.Last />
-            </Pagination>
         </div>
     )
 }
