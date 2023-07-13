@@ -30,6 +30,7 @@ type PageProps = {
 // load initial mit page-1
 export function Page({page} : PageProps){
     const [pages, setPages] = useState([...calcPageArray(page)])
+
     useEffect(() => {
         setPages([...calcPageArray(page)])
     },[page])
@@ -91,31 +92,17 @@ export function PostDisplay(){
 
     useEffect(() => {
         console.log("rendering...");
-        
         const getPostsUseEffect = async () => {
             await loadPosts();
         }
         getPostsUseEffect();
-    },[])
-
-    async function getPosts(){
-        try{
-            const response = await axios.get(url + "/post/feed", {withCredentials : true});
-            console.log(response);
-            
-            const postResponse = response.data as PostResponse
-            setPostResponse(postResponse)
-            setPosts([...posts, ...postResponse.posts])
-        }catch(error){
-            console.log("getBlogs error :", error);
-        }
-    }
+    },[id])
 
     async function loadPosts(){
         try{
             const response = await axios.get(url + `/post/feed?pageSize=10&pageNumber=${id}&sort=new`, {withCredentials : true});
             setPostResponse(response.data as PostResponse)
-            setPosts([...posts, ...response.data.posts])
+            setPosts([...response.data.posts])
         }catch(error){
             console.log("load more posts error: ", error);
         }
@@ -125,6 +112,15 @@ export function PostDisplay(){
         <div>
             id: {id}
             <Link to={"/"}>back</Link>
+            <div>
+                {posts.map(p => {
+                    return(
+                    <div key={p.id}>
+                        {p.title}, {p.text}, author: {p.authorName}
+                    </div>
+                    )
+                })}
+            </div>
             <Page page={id ? parseInt(id) : 1}></Page>
         </div>
     )
