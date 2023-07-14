@@ -5,6 +5,7 @@ import { Comment, CommentResponse } from "./Comment"
 import { Button, Form, Pagination } from "react-bootstrap"
 import { useParams } from "react-router"
 import { Link } from "react-router-dom"
+import { client } from "../api"
 
 export type PostResponse = {
     currentPage : number,
@@ -21,160 +22,42 @@ export type Post = {
     likes : number
 }
 
-type PageProps = {
-    page : number,
-    lastPage : number
-}
-
-export function Page({page, lastPage} : PageProps){
-    const [pages, setPages] = useState([...calc()])
-
-    useEffect(() => {
-        setPages([...calc()])
-    },[page, lastPage])
-
-    function calc() : number[]{
-        const range = 4
-        const halfRange = Math.floor(range/2)
-        let start = page
-        let end = page 
-        const minStart = 1
-        const maxEnd = lastPage
-
-        if(lastPage > range){
-
-        for(let i=0;i<=range;){
-            console.log("stuck");
-            
-            if(start > minStart){
-                start -= 1
-                i += 1
-            }
-            if(end < maxEnd && i<range){
-                end += 1
-                i += 1
-            }
-            if(i==range){
-                break
-            }
-            if(maxEnd == minStart){
-                break
-            }
-        }
-        }else{
-            end = maxEnd
-            start = minStart
-        }
-
-        const arr : number[] = [] 
-        for(let i = start;i <= end;i++){
-            arr.push(i);
-        }
-        return  arr
-    }
-
-    return(
-        <div>
-            <Pagination>
-                <Pagination.First>
-                    <Link to={`../post/1`}>
-                        First
-                    </Link>
-                </Pagination.First>
-                {pages.map(p => {
-                    return(
-                    <Pagination.Item active={page == p}>
-                        <Link to={`../post/${p}`}>
-                            {p}
-                        </Link>
-                    </Pagination.Item>
-                    )
-                })}
-                <Pagination.Last>
-                    <Link to={`../post/6`}>
-                        Last
-                    </Link>
-                </Pagination.Last>
-            </Pagination>
-        </div>
-    )
-}
-
-export function PostDisplay(){
-    const {id} = useParams(); 
-    const [postResponse, setPostResponse] = useState<PostResponse | null>(null)
-    const [posts, setPosts] = useState<Post[]>([])
-
-
-    useEffect(() => {
-        const getPostsUseEffect = async () => {
-            await loadPosts();
-        }
-        getPostsUseEffect();
-    },[id])
-
-    async function loadPosts(){
-        try{
-            const response = await axios.get(url + `/post/feed?pageSize=10&pageNumber=${id}&sort=new`, {withCredentials : true});
-            setPostResponse(response.data as PostResponse)
-            setPosts([...response.data.posts])
-        }catch(error){
-            console.log("load more posts error: ", error);
-        }
-    }
-
-    return(
-        <div>
-            id: {id}
-            <Link to={"/"}>back</Link>
-            <div>
-                {posts.map(p => {
-                    return(
-                    <div key={p.id}>
-                        {p.title}, {p.text}, author: {p.authorName}
-                        <Link to={`../postpage/${p.id}`}>
-                            Click me!
-                        </Link>
-                    </div>
-                    )
-                })}
-            </div>
-            <Page page={id ? parseInt(id) : 1} lastPage={postResponse?.lastPage ? postResponse.lastPage : 1}></Page>
-        </div>
-    )
-}
-
-export function PostAlone() {
-    return(
-        <div>
-            Bonjour!
-        </div>
-    )
-}
-
 export type PostProps = {
     post : Post,
     updatePost : (p : Post, operation : "update" | "remove" | "add") => void
 }
 
 // TODO make new comment
-export function Post({post , updatePost} : PostProps ){
+export function Post(){
+    const [post, setPost] = useState<Post>({title: "", text: "", likes: 0,authorName: "", id: 0, createdAt: ""})
     const [comments, setComments] = useState<any[]>([])
     const [commentValue, setCommentValue] = useState("")
     const [commentResponse, setCommentResponse] = useState<null | CommentResponse>(null)
+    const {id} = useParams()
 
     useEffect(() => {
         const getCommentsAsync = async () =>{
+            loadPost();
             getMoreComments();
         }
         getCommentsAsync();
     },[])
 
+    async function loadPost(){
+        try{
+            const response = await client.get(`/post/${id}`)
+            console.log("response: ", response);
+            setPost(response.data)
+        }catch(error){
+            console.log("error: ", error);
+        }
+    }
+
     async function getMoreComments(){
         if(commentResponse != null){
             if(commentResponse.currentPage != commentResponse.lastPage){
                 try{
-                    const response = await axios.get(url + `/post/${post.id}/comments`, {withCredentials : true})
+                    const response = await client.get(`/post/${id}/comments`)
                     setComments([...comments, ...commentResponse.comments])
                     setCommentResponse(response.data)
                 }catch(error){
@@ -183,7 +66,7 @@ export function Post({post , updatePost} : PostProps ){
             }
         }else{
             try{
-                const response = await axios.get(url + `/post/${post.id}/comments`, {withCredentials : true})
+                const response = await axios.get(url + `/post/${id}/comments`, {withCredentials : true})
                 setComments([...response.data.comments])
                 setCommentResponse(response.data)
             }catch(error){
@@ -194,8 +77,8 @@ export function Post({post , updatePost} : PostProps ){
     
     async function handleDislike(){
         try{
-            const response = await axios.delete(url + `/post/${post.id}/likes` ,{withCredentials : true})
-            updatePost({...post, likes : post.likes - 1}, "update")
+            const response = await axios.delete(url + `/post/${id}/likes` ,{withCredentials : true})
+            //updatePost({...post, likes : post.likes - 1}, "update")
             console.log("like: ", response)
         }catch(error){
             console.log("post dislike error: ", error);
@@ -205,7 +88,7 @@ export function Post({post , updatePost} : PostProps ){
     async function handleLike(){
         try{
             const response = await axios.post(url + `/post/${post.id}/likes` ,{},{withCredentials : true})
-            updatePost({...post, likes : post.likes + 1}, "update")
+            //updatePost({...post, likes : post.likes + 1}, "update")
             console.log("dislike: ", response)
         }catch(error){
             console.log("post like error: ", error);
@@ -248,7 +131,7 @@ export function Post({post , updatePost} : PostProps ){
         try{
             const response = await axios.delete(url + `/post/${post.id}`, {withCredentials : true})
             console.log("delete post response: ", response);
-            updatePost(post , "remove")
+            //updatePost(post , "remove")
         }catch(error){
             console.log("delete post error: ", error);
         }
@@ -256,10 +139,12 @@ export function Post({post , updatePost} : PostProps ){
 
     return(
         <div>
+            <Link to={"../"}>
+                Back
+            </Link>
             blogs: {JSON.stringify(post)}
             <div>
                 <div>
-                    <UpdatePost post={post} updatePost={updatePost}></UpdatePost>
                     <Button onClick={deletePost} variant="primary">delete</Button>
                     <Button onClick={handleLike} variant="primary">like</Button>
                     <Button onClick={handleDislike} variant="primary">dislike</Button>

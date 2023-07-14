@@ -1,11 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import { RouterProvider, ScrollRestoration, createBrowserRouter } from 'react-router-dom';
-import { PostAlone, PostDisplay } from './components/Post';
-import { Homefeed } from './components/Homefeed';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Home from './components/Home';
+import { Post } from './components/Post';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -14,15 +13,11 @@ const root = ReactDOM.createRoot(
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Homefeed></Homefeed>,
+    element: <Home></Home>,
   },
   {
     path: "/post/:id",
-    element: <PostDisplay></PostDisplay>,
-  },
-  {
-    path: "/postpage/:id",
-    element: <PostAlone></PostAlone>
+    element: <Post/>,
   }
 ]);
 
