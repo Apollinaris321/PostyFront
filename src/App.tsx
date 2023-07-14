@@ -1,24 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Router } from 'react-router';
+import { Router, RouterProvider } from 'react-router';
+import { createBrowserRouter } from 'react-router-dom';
+import Home from './components/Home';
+import { Post } from './components/Post';
+import { userContext, userInfo } from './user';
 
 function App() {
+
+  const [user, setUser] = useState<userInfo | null>({email: "", username: ""})
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Home></Home>,
+    },
+    {
+      path: "/post/:id",
+      element: <Post/>,
+    }
+  ]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Reactaa
-        </a>
-      </header>
-    </div>
+    <userContext.Provider value={{user,setUser}}>
+      <RouterProvider router={router}/>
+    </userContext.Provider>
   );
 }
 

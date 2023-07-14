@@ -1,7 +1,10 @@
 import axios from "axios";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { url } from "./Url";
 import { Button, Form } from "react-bootstrap";
+import { client } from "../api";
+import { Page } from "./Page";
+import { useParams } from "react-router";
 
 export type Comment = {
     authorName : string,
@@ -94,7 +97,6 @@ export function UpdateComment(props : UpdateCommentProp){
 
     return(
         <div>
-            <Button onClick={() => {setEdit(edit ? false : true)}}>edit</Button>
             {
                 edit ? 
                 <div>
@@ -105,10 +107,124 @@ export function UpdateComment(props : UpdateCommentProp){
                       </Form.Group>
                     </Form>
                     <Button onClick={handleEditComment} variant="primary">update</Button>
+                    <Button onClick={() => {setEdit(edit ? false : true)}}>close</Button>
                 </div>
                 :
-                null
+                <Button onClick={() => {setEdit(edit ? false : true)}}>edit</Button>
             }
+        </div>
+    )
+}
+
+type CommentSectionProps = {
+    postId : string
+}
+
+export function CommentSection({postId = "1" } : CommentSectionProps){
+    const [page, setPage] = useState(1)
+    const [lastPage, setLastPage] = useState(1)
+    const [comments, setComments] = useState<any[]>([])
+    const [commentValue, setCommentValue] = useState("")
+
+    useEffect(() => {
+        const getCommentsAsync = async () =>{
+            getCommentPage(page)
+        }
+        getCommentsAsync();
+    },[page])
+
+    async function getCommentPage(page : number){
+        try{
+            const response = await client.get(`Post/${postId}/comments?pageSize=10&pageNumber=${page}`)
+            const commentResponse = response.data as CommentResponse
+            
+            setComments([...commentResponse.comments])
+            setPage(commentResponse.currentPage)
+            setLastPage(commentResponse.lastPage)
+        }catch(error){
+            console.log("error more comments: ", error);
+        }
+    }
+
+    function handleCommentChange(newComment : Comment, operation : "add" | "remove" | "update"){
+        if(operation == "remove"){
+            getCommentPage(page)
+        }else if(operation == "update"){
+            setComments([
+                ...comments.map((c : Comment) => {
+                    if(c.id == newComment.id){
+                        return newComment
+                    }else{
+                        return c
+                    }
+                })
+            ])
+        }else if(operation == "add"){
+            getCommentPage(page)
+        }
+    }
+
+    async function updatePage(newPage : number){
+        setPage(newPage)
+        await getCommentPage(newPage);
+    }
+
+    return(
+        <div>
+            <AddComment postId={postId} updateComment={handleCommentChange}></AddComment>
+            {comments.map(c => {
+                return(
+                    <div key={c.id}>
+                        <Comment comment={c} updateComment={handleCommentChange}></Comment>
+                    </div>
+                )
+            })}
+            <Page updatePage={updatePage} page={page} lastPage={lastPage}></Page>
+        </div>
+    )
+}
+
+type AddCommentProp = {
+    updateComment : (c : Comment, operation : "add" | "remove" | "update") => void,
+    postId?: string
+}
+
+function AddComment(prop : AddCommentProp){
+    const [newComment, setNewComment] = useState("")
+    const [error, setError] = useState("")
+
+    async function sendComment(){
+        if(newComment == ""){
+            setError("Can't send empty comment!")
+            return;
+        }
+        try{
+            const response = await client.post(`/post/${prop.postId}/comments` ,{text : newComment})
+            console.log("comment resp: ", response.data)
+            setNewComment("")
+            prop.updateComment(response.data, "add")
+        }catch(error){
+            console.log("like error: ", error)
+        }
+    }
+
+    function handleCommentInput(e : React.ChangeEvent<HTMLInputElement>){
+        setError("")
+        setNewComment(e.currentTarget.value);
+    }
+
+    return(
+        <div>
+            <Form>
+              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                <Form.Label>Comment</Form.Label>
+                {
+                    error == "" ? null : <div>{error}</div>
+                }
+                <Form.Control type="text" onChange={handleCommentInput} value={newComment}/>
+              </Form.Group>
+            </Form>
+            <Button onClick={sendComment}>send</Button>
         </div>
     )
 }

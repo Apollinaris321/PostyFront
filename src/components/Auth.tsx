@@ -1,7 +1,8 @@
 import axios from "axios"
 import {client} from '../api'
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Button, ButtonGroup, Form, Modal, ToggleButton } from "react-bootstrap"
+import { userContext } from "../user"
 
 type AuthError = {
     Username : string[],
@@ -20,6 +21,7 @@ export function Auth(){
     const [errorMsg, setErrorMsg] = useState<AuthError>({...defaultError})
     const [show, setShow] = useState(false)
 
+    const {user, setUser} = useContext(userContext)
 
     function handleClose(){
         setErrorMsg({...defaultError})
@@ -72,8 +74,9 @@ export function Auth(){
     async function handleLogin(){
         try{
             const response = await client.post("Profile/login",{username : username,password : password})
-            console.log("reigster resp: ", response.data);
+            console.log("reigster resp: ", response);
             setShow(false)
+            setUser(response.data)
         }catch(error : any){
             handleErrors(error)
         }
@@ -84,6 +87,7 @@ export function Auth(){
             const response = await client.post("/Profile/register",{username : username, email : email, password : password})
             console.log("reigster resp: ", response.data);
             setShow(false)
+            setUser(response.data)
         }catch(error : any){
             handleErrors(error)
         }
@@ -180,11 +184,13 @@ export function Auth(){
 }
 
 export function Logout(){
+    const {user, setUser} = useContext(userContext)
 
     async function handleLogout(){
         try{
             const response = await axios.get("https://localhost:7226/api/Profile/logout",{withCredentials: true})
             console.log("reigster resp: ", response.data);
+            setUser(null)
         }catch(error){
             console.log("logout error: ", error);
         }

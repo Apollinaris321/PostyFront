@@ -7,16 +7,23 @@ type PageProps = {
     updatePage : (page : number) => void
 }
 
-export function Page({page = 1, lastPage = 1, updatePage} : PageProps){
+export function Page({page, lastPage, updatePage} : PageProps){
     const [pages, setPages] = useState([...calc()])
 
     useEffect(() => {
+        console.log("page: ", page, " lastpage: ", lastPage);
+        
         setPages([...calc()])
     },[page, lastPage])
 
     function calc() : number[]{
+        if(page == undefined){
+            page = 1
+        }
+        if(lastPage == undefined){
+            lastPage = 1
+        }
         const range = 4
-        const halfRange = Math.floor(range/2)
         let start = page
         let end = page 
         const minStart = 1
@@ -25,7 +32,7 @@ export function Page({page = 1, lastPage = 1, updatePage} : PageProps){
         if(lastPage > range){
 
         for(let i=0;i<=range;){
-            console.log("stuck");
+            console.log("stuck", start, " end: ", end);
             
             if(start > minStart){
                 start -= 1
@@ -51,7 +58,7 @@ export function Page({page = 1, lastPage = 1, updatePage} : PageProps){
         for(let i = start;i <= end;i++){
             arr.push(i);
         }
-        return  arr
+        return arr
     }
 
     return(
@@ -62,12 +69,12 @@ export function Page({page = 1, lastPage = 1, updatePage} : PageProps){
                 </Pagination.First>
                 {pages.map(p => {
                     return(
-                    <Pagination.Item active={page == p} onClick={() => updatePage(p)}>
+                    <Pagination.Item key={p} active={page == p} onClick={() => updatePage(p)}>
                         {p}
                     </Pagination.Item>
                     )
                 })}
-                <Pagination.Last onClick={() => updatePage(lastPage)}>
+                <Pagination.Last onClick={() => updatePage(lastPage ? lastPage : 1)}>
                     Last
                 </Pagination.Last>
             </Pagination>

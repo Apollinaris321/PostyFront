@@ -1,9 +1,9 @@
 import axios from "axios"
 import { url } from "./Url"
 import { useState, useEffect, FormEvent } from "react"
-import { Comment, CommentResponse } from "./Comment"
+import { Comment, CommentResponse, CommentSection } from "./Comment"
 import { Button, Form, Pagination } from "react-bootstrap"
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import { Link } from "react-router-dom"
 import { client } from "../api"
 
@@ -22,23 +22,14 @@ export type Post = {
     likes : number
 }
 
-export type PostProps = {
-    post : Post,
-    updatePost : (p : Post, operation : "update" | "remove" | "add") => void
-}
-
-// TODO make new comment
 export function Post(){
     const [post, setPost] = useState<Post>({title: "", text: "", likes: 0,authorName: "", id: 0, createdAt: ""})
-    const [comments, setComments] = useState<any[]>([])
-    const [commentValue, setCommentValue] = useState("")
-    const [commentResponse, setCommentResponse] = useState<null | CommentResponse>(null)
+      const navigate = useNavigate();
     const {id} = useParams()
 
     useEffect(() => {
         const getCommentsAsync = async () =>{
             loadPost();
-            getMoreComments();
         }
         getCommentsAsync();
     },[])
@@ -52,34 +43,12 @@ export function Post(){
             console.log("error: ", error);
         }
     }
-
-    async function getMoreComments(){
-        if(commentResponse != null){
-            if(commentResponse.currentPage != commentResponse.lastPage){
-                try{
-                    const response = await client.get(`/post/${id}/comments`)
-                    setComments([...comments, ...commentResponse.comments])
-                    setCommentResponse(response.data)
-                }catch(error){
-                    console.log("error more comments: ", error);
-                }
-            }
-        }else{
-            try{
-                const response = await axios.get(url + `/post/${id}/comments`, {withCredentials : true})
-                setComments([...response.data.comments])
-                setCommentResponse(response.data)
-            }catch(error){
-                console.log("get more comments error: ", error);
-            }
-        }
-    }
     
     async function handleDislike(){
         try{
             const response = await axios.delete(url + `/post/${id}/likes` ,{withCredentials : true})
-            //updatePost({...post, likes : post.likes - 1}, "update")
             console.log("like: ", response)
+            setPost({...post, likes : post.likes - 1})
         }catch(error){
             console.log("post dislike error: ", error);
         }
@@ -88,52 +57,27 @@ export function Post(){
     async function handleLike(){
         try{
             const response = await axios.post(url + `/post/${post.id}/likes` ,{},{withCredentials : true})
-            //updatePost({...post, likes : post.likes + 1}, "update")
             console.log("dislike: ", response)
+            setPost({...post, likes : post.likes + 1})
         }catch(error){
             console.log("post like error: ", error);
         }
 
     }
 
-    async function sendComment(){
-        try{
-            const response = await axios.post(url + `/post/${post.id}/comments` ,{text : commentValue},{withCredentials : true})
-            console.log("comment resp: ", response.data)
-            setComments([...comments, {...response.data}])
-            setCommentValue("")
-        }catch(error){
-            console.log("like error: ", error)
-        }
-    }
-
-    function handleCommentInput(e : React.ChangeEvent<HTMLInputElement>){
-        setCommentValue(e.currentTarget.value);
-    }
-
-    function handleCommentChange(newComment : Comment, operation : "add" | "remove" | "update"){
-        if(operation == "remove"){
-            setComments([...comments.filter((c: Comment) => c.id != newComment.id)])
-        }else if(operation == "update"){
-            setComments([
-                ...comments.map((c : Comment) => {
-                    if(c.id == newComment.id){
-                        return newComment
-                    }else{
-                        return c
-                    }
-                })
-            ])
-        }
-    }
-
     async function deletePost(){
         try{
-            const response = await axios.delete(url + `/post/${post.id}`, {withCredentials : true})
+            const response = await client.delete(`/post/${post.id}`)
+            navigate('../', {replace: true});
             console.log("delete post response: ", response);
-            //updatePost(post , "remove")
         }catch(error){
             console.log("delete post error: ", error);
+        }
+    }
+
+    function handleUpdatePost(p : Post, operation : "add" | "remove" | "update"){
+        if(operation == "update"){
+            setPost({...p})
         }
     }
 
@@ -142,27 +86,16 @@ export function Post(){
             <Link to={"../"}>
                 Back
             </Link>
-            blogs: {JSON.stringify(post)}
+            <div>
+                blogs: {JSON.stringify(post)}
+            </div>
             <div>
                 <div>
                     <Button onClick={deletePost} variant="primary">delete</Button>
                     <Button onClick={handleLike} variant="primary">like</Button>
                     <Button onClick={handleDislike} variant="primary">dislike</Button>
-                    <Button id={post.id.toString()} onClick={getMoreComments} variant="primary">more</Button>
-                    <div>
-                        <Form>
-                          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Comment</Form.Label>
-                            <Form.Control type="text" onChange={handleCommentInput} value={commentValue}/>
-                          </Form.Group>
-                        </Form>
-                        <Button onClick={sendComment}>send com</Button>
-                    </div>
-                    {comments.map((c : any) => 
-                        <div key={c.id}>
-                            <Comment comment={c} updateComment={handleCommentChange}></Comment>
-                        </div>
-                    )}
+                    <UpdatePost post={post} updatePost={handleUpdatePost}></UpdatePost>
+                    <CommentSection postId={id ? id : "1"}></CommentSection>
                 </div>
             </div>
         </div>
@@ -178,6 +111,11 @@ function UpdatePost(props : UpdatePostProp){
     const [title, setTitle] = useState(props.post.title)
     const [text, setText] = useState(props.post.text)
     const [edit, setEdit] = useState(false)
+
+    useEffect(() => {
+        setTitle(props.post.title)
+        setText(props.post.text)
+    },[props.post])
 
     function handleTextEditChange(e : React.ChangeEvent<HTMLInputElement>){
         setText(e.currentTarget.value)
@@ -219,51 +157,6 @@ function UpdatePost(props : UpdatePostProp){
                 :
                 null
             }
-
-        </div>
-    )
-}
-
-
-export type AddPostProp = {
-    updatePost : (p : Post, operation : "remove" | "add" | "update") => void
-}
-
-export function AddPost(props: AddPostProp){
-    const [title , setTitle] = useState("")
-    const [text , setText] = useState("")
-
-    function handleTextChange(e : React.ChangeEvent<HTMLInputElement>){
-        setText(e.currentTarget.value)
-    }
-
-    function handleTitleChange(e : React.ChangeEvent<HTMLInputElement>){
-        setTitle(e.currentTarget.value)
-    }
-
-    async function sendPost(){
-        try{
-            const response = await axios.post(url + '/post', {title : title, text : text}, {withCredentials : true})
-            props.updatePost(response.data as Post, "add")
-            console.log(response.data);
-        }catch(error){
-            console.log("send post error: ", error);
-        }
-    }
-
-    return(
-        <div>
-            <Form>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                <Form.Label>Title</Form.Label>
-                <Form.Control type="text" onChange={handleTitleChange} value={title}/>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                <Form.Label>Text</Form.Label>
-                <Form.Control  as="textarea" rows={3} type="text" onChange={handleTextChange} value={text}/> 
-              </Form.Group>
-            </Form>
-            <Button onClick={sendPost}>post it!</Button>
         </div>
     )
 }
