@@ -1,6 +1,6 @@
 import axios from "axios"
 import {client} from '../api'
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Button, ButtonGroup, Form, Modal, ToggleButton } from "react-bootstrap"
 import { userContext } from "../user"
 
@@ -76,7 +76,7 @@ export function Auth(){
             const response = await client.post("Profile/login",{username : username,password : password})
             console.log("reigster resp: ", response);
             setShow(false)
-            setUser(response.data)
+            setUser({...response.data})
         }catch(error : any){
             handleErrors(error)
         }
@@ -95,7 +95,7 @@ export function Auth(){
 
     return(
         <div>
-            <Button onClick={() => setShow(show ? false : true)}>Login</Button>
+            <Button size="sm" onClick={() => setShow(show ? false : true)}>Login</Button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <ButtonGroup>
@@ -198,7 +198,7 @@ export function Logout(){
 
     return(
         <div>
-            <Button onClick={handleLogout} variant="primary">logout</Button>
+            <Button size="sm" onClick={handleLogout} variant="primary">logout</Button>
         </div>
     )
 }

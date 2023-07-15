@@ -1,11 +1,12 @@
 import axios from "axios"
 import { url } from "./Url"
-import { useState, useEffect, FormEvent } from "react"
+import { useState, useEffect, FormEvent, useContext } from "react"
 import { Comment, CommentResponse, CommentSection } from "./Comment"
-import { Button, Form, Pagination } from "react-bootstrap"
+import { Button, Card, Form, Pagination } from "react-bootstrap"
 import { useNavigate, useParams } from "react-router"
 import { Link } from "react-router-dom"
 import { client } from "../api"
+import { userContext } from "../user"
 
 export type PostResponse = {
     currentPage : number,
@@ -24,8 +25,10 @@ export type Post = {
 
 export function Post(){
     const [post, setPost] = useState<Post>({title: "", text: "", likes: 0,authorName: "", id: 0, createdAt: ""})
-      const navigate = useNavigate();
+    const [edit, setEdit] = useState(false)
+    const navigate = useNavigate();
     const {id} = useParams()
+    const {user} = useContext(userContext)
 
     useEffect(() => {
         const getCommentsAsync = async () =>{
@@ -62,7 +65,6 @@ export function Post(){
         }catch(error){
             console.log("post like error: ", error);
         }
-
     }
 
     async function deletePost(){
@@ -86,31 +88,73 @@ export function Post(){
             <Link to={"../"}>
                 Back
             </Link>
-            <div>
-                blogs: {JSON.stringify(post)}
-            </div>
-            <div>
-                <div>
-                    <Button onClick={deletePost} variant="primary">delete</Button>
-                    <Button onClick={handleLike} variant="primary">like</Button>
-                    <Button onClick={handleDislike} variant="primary">dislike</Button>
-                    <UpdatePost post={post} updatePost={handleUpdatePost}></UpdatePost>
-                    <CommentSection postId={id ? id : "1"}></CommentSection>
-                </div>
-            </div>
+            <Card>
+                <Card.Header className="d-flex flex-row justify-content-around">
+                    <Link to={`/profile/${post?.authorName}`}  className="text-decoration-none">
+                        Profile: {post?.authorName}
+                    </Link>
+                    <div>
+                        {post?.createdAt}
+                    </div>
+                </Card.Header>
+                <Card.Body>
+                {
+                    edit ? 
+                    <UpdatePost post={post} updatePost={handleUpdatePost} setEdit={setEdit}></UpdatePost>
+                    :
+                    <div>
+                        <Card.Title>
+                            <div>
+                                {post.title}
+                            </div>
+                        </Card.Title>
+                        <Card.Text>
+                            <div>
+                                {post.text}
+                            </div>
+                        </Card.Text>
+                    </div>
+                }
+                </Card.Body>
+                <Card.Footer>
+                    { edit ? 
+                        null 
+                        : 
+                        <div className="d-flex flex-row gap-2">
+                            <div className="d-flex flex-row justify-content-center align-items-center gap-2">
+                                <div>
+                                    {post.likes}
+                                </div>
+                                <Button onClick={handleLike} variant="primary">like</Button>
+                                <Button onClick={handleDislike} variant="danger">dislike</Button>
+                            </div>
+                            {
+                                user?.username == post.authorName ? 
+                                    <div className="d-flex flex-row gap-2">
+                                        <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
+                                        <Button onClick={deletePost} variant="danger">delete</Button>
+                                    </div>
+                                :
+                                    null
+                            }
+                        </div>
+                    }
+                </Card.Footer>
+            </Card>
+            <CommentSection postId={id ? id : "1"}></CommentSection>
         </div>
     )
 }
 
 export type UpdatePostProp = {
     post : Post,
-    updatePost : (p : Post, operation : "add" | "remove" | "update") => void
+    updatePost : (p : Post, operation : "add" | "remove" | "update") => void,
+    setEdit : (b : boolean) => void
 }
 
 function UpdatePost(props : UpdatePostProp){
     const [title, setTitle] = useState(props.post.title)
     const [text, setText] = useState(props.post.text)
-    const [edit, setEdit] = useState(false)
 
     useEffect(() => {
         setTitle(props.post.title)
@@ -125,38 +169,31 @@ function UpdatePost(props : UpdatePostProp){
         setTitle(e.currentTarget.value)
     }
 
-    async function handleEditPost(){
+    async function saveEdit(){
         try{
-            const response = await axios.put(url + `/post/${props.post.id}`, {text : text, title: title}, {withCredentials: true})
-            console.log("edit post response: ", response.data);
+            const response = await client.put(`/post/${props.post.id}`, {text : text, title: title})
             const postResponse = response.data as Post
             props.updatePost({...props.post, title : postResponse.title, text : postResponse.text}, "update")
-            setEdit(false)
+            props.setEdit(false)
         }catch(error){
             console.log("edit post error: ", error);
         }
     }
+
     return(
         <div>
-            <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
-            {
-                edit ? 
-                <div>
-                    <Form>
-                      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                        <Form.Label>Title</Form.Label>
-                        <Form.Control type="text" onChange={handleTitleEditChange} value={title}/>
-                      </Form.Group>
-                      <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                        <Form.Label>Text</Form.Label>
-                        <Form.Control type="text" onChange={handleTextEditChange} value={text}/>
-                      </Form.Group>
-                    </Form>
-                    <Button onClick={handleEditPost}>update</Button>
-                </div>
-                :
-                null
-            }
+            <Form>
+              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                <Form.Label>Title</Form.Label>
+                <Form.Control type="text" onChange={handleTitleEditChange} value={title}/>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                <Form.Label>Text</Form.Label>
+                <Form.Control type="text" onChange={handleTextEditChange} value={text}/>
+              </Form.Group>
+            </Form>
+            <Button onClick={saveEdit}>save</Button>
+            <Button onClick={() => props.setEdit(false)} variant="danger">discard</Button>
         </div>
     )
 }

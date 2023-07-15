@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, FormEvent, useEffect } from "react";
 import { url } from "./Url";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, InputGroup } from "react-bootstrap";
 import { client } from "../api";
 import { Page } from "./Page";
 import { useParams } from "react-router";
@@ -214,17 +214,15 @@ function AddComment(prop : AddCommentProp){
     }
 
     return(
-        <div>
-            <Form>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                <Form.Label>Comment</Form.Label>
-                {
-                    error == "" ? null : <div>{error}</div>
-                }
-                <Form.Control type="text" onChange={handleCommentInput} value={newComment}/>
-              </Form.Group>
-            </Form>
-            <Button onClick={sendComment}>send</Button>
+        <div className="d-flex flex-column justify-content-center align-items-center">
+            {
+                error == "" ? null : <div>{error}</div>
+            }
+            <InputGroup className="mb-3">
+
+                <Form.Control rows={2}  as="textarea" onChange={handleCommentInput} value={newComment}/>
+                <Button onClick={sendComment}>send</Button>
+            </InputGroup>
         </div>
     )
 }

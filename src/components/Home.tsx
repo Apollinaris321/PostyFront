@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import {  Post, PostResponse } from "./Post";
+import {  Post,  PostResponse } from "./Post";
 import { client } from "../api";
 import { Page } from "./Page";
 import { Link } from "react-router-dom";
 import { Auth, Logout } from "./Auth";
 import { AddPost } from "./AddPost";
-import { Button } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import { userContext } from "../user";
+import '../index.css';
+import TopNavbar from "./Topnavbar";
 
 export default function Home(){
     const [posts, setPosts] = useState<Post[]>([])
@@ -50,27 +52,50 @@ export default function Home(){
     }
 
     return(
-        <div>
-            {
-                user ? 
-                <Logout></Logout>
-                    :
-                <Auth></Auth>
-            }
-            <AddPost updatePost={handleUpdatePost}></AddPost>
-            {posts.map(p => {
-                return(
-                    <div key={p.id}>
-                        <Link to={`/post/${p.id}`}>
-                            Click me!
-                        </Link>
-                        {JSON.stringify(p)}
-                        <PostDisplayLike post={p} updatePost={handleUpdatePost}></PostDisplayLike>
-                    </div>
-                )
-            })}
-            <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
+        <div className="home row">
+            <div className="col-sm"></div>
+            <div className="col-6">
+                <AddPost updatePost={handleUpdatePost}></AddPost>
+                {posts.map(p => {
+                    return(
+                        <div key={p.id}>
+                            <PostTitleCard post={p} updatePost={handleUpdatePost}></PostTitleCard>
+                        </div>
+                    )
+                })}
+                <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
+            </div>
+            <div className="col-sm"></div>
         </div>
+    )
+}
+
+type PostTitleCardProp = {
+    post : Post,
+    updatePost : (p : Post, operation : "add" | "remove" | "update") => void
+}
+export function PostTitleCard({post, updatePost} : PostTitleCardProp){
+    return(
+        <Card className="d-flex flex-row  align-content-center p-1">
+            <div>
+                <PostDisplayLike post={post} updatePost={updatePost}></PostDisplayLike>
+            </div>
+            <div className="d-flex flex-column w-100">
+                <Link className="link" to={`/post/${post.id}`}>
+                    <div>
+                        {post.title}
+                    </div>
+                </Link>
+                <div className="description">
+                    <div>
+                        {post.authorName}
+                    </div>
+                    <div>
+                        {post.createdAt}
+                    </div>
+                </div>
+            </div>
+        </Card>
     )
 }
 
@@ -102,9 +127,14 @@ function PostDisplayLike({post, updatePost} : PostDisplayLikeProp){
     }
 
     return(
-        <div>
-            <Button variant="primary" onClick={handleLike}>Like</Button>
-            <Button variant="primary" onClick={handleDislike}>Dislike</Button>
+        <div className="d-flex gap-1 align-items-center">
+            <div>
+                {post.likes}
+            </div>
+            <div className="d-flex flex-column gap-1">
+                <Button size="sm" variant="primary" onClick={handleLike}>Like</Button>
+                <Button size="sm" variant="danger" onClick={handleDislike}>Dislike</Button>
+            </div>
         </div>
     )
 }
