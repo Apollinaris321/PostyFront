@@ -12,10 +12,12 @@ export default function TopNavbar() {
         <div className="all">
             <Navbar bg="primary" data-bs-theme="light">
                 <Container fluid >
-                    <div></div>
-                        <Link className="customLink" to="/">
-                            Home
-                        </Link>
+                    <Link to="../" className="customLink">
+                        Back
+                    </Link>
+                    <Link className="customLink" to="/">
+                        Home
+                    </Link>
                     <div className="logout">
                         {
                             user ? 

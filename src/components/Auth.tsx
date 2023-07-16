@@ -188,7 +188,7 @@ export function Logout(){
 
     async function handleLogout(){
         try{
-            const response = await axios.get("https://localhost:7226/api/Profile/logout",{withCredentials: true})
+            const response = await client.get("Profile/logout")
             console.log("reigster resp: ", response.data);
             setUser(null)
         }catch(error){

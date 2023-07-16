@@ -32,6 +32,11 @@ code {
   height:100vh;
 }
 
+.linkText{
+  text-decoration: none;
+  color: black;
+}
+
 .customLink{
   text-decoration: none;
   color: white;
@@ -39,4 +44,20 @@ code {
 
 .home{
   display: grid;
+}
+
+.postwrapper{
+  height: 100vh;
+}
+
+.wrapper{
+  height: 100vh;
+  padding-top: 1em;
+}
+
+.commentcard{
+  border: 1px solid black;
+  border-radius: 1em;
+  padding: 1em;
+
 }

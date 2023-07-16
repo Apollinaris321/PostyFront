@@ -54,16 +54,20 @@ export default function Home(){
     return(
         <div className="home row">
             <div className="col-sm"></div>
-            <div className="col-6">
+            <div className="col-6 d-flex flex-column gap-2">
                 <AddPost updatePost={handleUpdatePost}></AddPost>
-                {posts.map(p => {
-                    return(
-                        <div key={p.id}>
-                            <PostTitleCard post={p} updatePost={handleUpdatePost}></PostTitleCard>
-                        </div>
-                    )
-                })}
-                <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
+                <div className="d-flex flex-column gap-2">
+                    {posts.map(p => {
+                        return(
+                            <div key={p.id}>
+                                <PostTitleCard post={p} updatePost={handleUpdatePost}></PostTitleCard>
+                            </div>
+                        )
+                    })}
+                </div>
+                <div className="d-flex justify-content-center">
+                    <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
+                </div>
             </div>
             <div className="col-sm"></div>
         </div>
@@ -77,22 +81,26 @@ type PostTitleCardProp = {
 export function PostTitleCard({post, updatePost} : PostTitleCardProp){
     return(
         <Card className="d-flex flex-row  align-content-center p-1">
-            <div>
-                <PostDisplayLike post={post} updatePost={updatePost}></PostDisplayLike>
-            </div>
+            <PostDisplayLike post={post} updatePost={updatePost}></PostDisplayLike>
             <div className="d-flex flex-column w-100">
-                <Link className="link" to={`/post/${post.id}`}>
-                    <div>
-                        {post.title}
-                    </div>
-                </Link>
-                <div className="description">
-                    <div>
+                <Card.Body className="p-0">
+                    <Link className="linkText" to={`/post/${post.id}`}>
+                        <div className="fs-3 d-flex justify-content-center">
+                            {post.title}
+                        </div>
+                    </Link>
+                </Card.Body>
+
+                <Card.Footer className="d-flex flex-row justify-content-around">
+                    <Link className="linkText" to={`/profile/${post?.authorName}`}>
                         {post.authorName}
-                    </div>
+                    </Link>
                     <div>
                         {post.createdAt}
                     </div>
+                </Card.Footer>
+                <div className="description">
+
                 </div>
             </div>
         </Card>

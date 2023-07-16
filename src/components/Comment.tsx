@@ -1,10 +1,12 @@
 import axios from "axios";
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect, useContext } from "react";
 import { url } from "./Url";
-import { Button, Form, InputGroup } from "react-bootstrap";
+import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import { client } from "../api";
 import { Page } from "./Page";
 import { useParams } from "react-router";
+import { userContext } from "../user";
+import { Link } from "react-router-dom";
 
 export type Comment = {
     authorName : string,
@@ -27,6 +29,10 @@ export type CommentProps = {
 }
 
 export function Comment({comment , updateComment} : CommentProps){
+    const {user} = useContext(userContext)
+    const [edit, setEdit] = useState(false)
+    const [text, setText] = useState(comment.text)
+
     async function dislikeComment(){
         try{
             const response = await axios.delete(url + `/comment/${comment.id}/likes`,{withCredentials: true})
@@ -58,16 +64,84 @@ export function Comment({comment , updateComment} : CommentProps){
         }
     }
 
+    async function handleEditComment(){
+        try{
+            const response = await client.put(`/comment/${comment.id}`, {text : text})
+            console.log("edit comment response: ", response.data);
+            updateComment({...comment, text : text}, "update")
+            setEdit(false)
+        }catch(error){
+            console.log("edit comment error: ", error);
+        }
+    }
+
+    function handleCommentTextChange(e : React.ChangeEvent<HTMLInputElement>){
+        setText(e.currentTarget.value)
+    }
+
+    function convertDateTime(date : string){
+        let timestamp = Date.parse(date)
+        let newDate = new Date(timestamp)
+        return newDate.toDateString()
+    }
+
     return(
-        <div>
-            Comment: 
-            <UpdateComment comment={comment} updateComment={updateComment}></UpdateComment>
-            <Button onClick={handleDeleteComment}>delete</Button>
-            <Button onClick={likeComment}>like</Button>
-            <Button onClick={dislikeComment}>dislike</Button>
-            -- 
-            {JSON.stringify(comment)}
-        </div>
+        <Card>
+            <Card.Body>
+                <div className="d-flex flex-row align-items-center gap-2">
+                    <div>
+                        {comment.likes}
+                    </div>
+                    <div className="d-flex flex-column gap-1 justify-content-end">
+                        <Button size="sm" onClick={likeComment}>like</Button>
+                        <Button size="sm" variant="danger" onClick={dislikeComment}>dislike</Button>
+                    </div>
+                    <div className="d-flex flex-column w-100">
+                            {
+                                edit ? 
+                                    <Form>
+                                      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                        <Form.Control type="text" onChange={handleCommentTextChange} value={text}/>
+                                      </Form.Group>
+                                    </Form>
+                                :
+                                <div className="fs-4 d-flex align-content-center justify-content-start">
+                                    {comment.text}
+                                </div>
+                            }
+                        <Card.Footer>
+
+                        <div className="d-flex flex-row align-items-end justify-content-between gap-2">
+                            <Link to="/" className="linkText">
+                                {comment.authorName}
+                            </Link>
+                            <div>
+                                {convertDateTime(comment.createdAt)}
+                            </div>
+                            {
+                                user?.username == comment.authorName ? 
+                                <>
+                                    {
+                                        edit ? 
+                                        <div className="d-flex flex-row gap-1">
+                                            <Button size="sm" variant="primary" onClick={handleEditComment}>update</Button>
+                                            <Button size="sm" variant="danger" onClick={() => {setEdit(edit ? false : true)}}>close</Button>
+                                        </div>
+                                        :
+                                        <div className="d-flex flex-row gap-1">
+                                            <Button size="sm" variant="primary" onClick={() => setEdit(true)}>edit</Button>
+                                            <Button size="sm" variant="danger" onClick={handleDeleteComment}>delete</Button>
+                                        </div>
+                                    }
+                                </>
+                                : null
+                            }
+                        </div>
+                        </Card.Footer>
+                    </div>
+                </div>
+            </Card.Body>
+        </Card>
     )
 }
 
@@ -110,7 +184,7 @@ export function UpdateComment(props : UpdateCommentProp){
                     <Button onClick={() => {setEdit(edit ? false : true)}}>close</Button>
                 </div>
                 :
-                <Button onClick={() => {setEdit(edit ? false : true)}}>edit</Button>
+                <Button size="sm" onClick={() => {setEdit(edit ? false : true)}}>edit</Button>
             }
         </div>
     )
@@ -137,6 +211,8 @@ export function CommentSection({postId = "1" } : CommentSectionProps){
         try{
             const response = await client.get(`Post/${postId}/comments?pageSize=10&pageNumber=${page}`)
             const commentResponse = response.data as CommentResponse
+            console.log("response comment page: ", commentResponse);
+            
             
             setComments([...commentResponse.comments])
             setPage(commentResponse.currentPage)
@@ -170,16 +246,20 @@ export function CommentSection({postId = "1" } : CommentSectionProps){
     }
 
     return(
-        <div>
+        <div className="d-flex flex-column gap-2">
             <AddComment postId={postId} updateComment={handleCommentChange}></AddComment>
-            {comments.map(c => {
-                return(
-                    <div key={c.id}>
-                        <Comment comment={c} updateComment={handleCommentChange}></Comment>
-                    </div>
-                )
-            })}
-            <Page updatePage={updatePage} page={page} lastPage={lastPage}></Page>
+            <div className="d-flex flex-column gap-2">
+                {comments.map(c => {
+                    return(
+                        <div key={c.id}>
+                            <Comment comment={c} updateComment={handleCommentChange}></Comment>
+                        </div>
+                    )
+                })}
+            </div>
+            <div className="d-flex justify-content-center">
+                <Page updatePage={updatePage} page={page} lastPage={lastPage}></Page>
+            </div>
         </div>
     )
 }
@@ -216,7 +296,9 @@ function AddComment(prop : AddCommentProp){
     return(
         <div className="d-flex flex-column justify-content-center align-items-center">
             {
-                error == "" ? null : <div>{error}</div>
+                error == "" ? 
+                null : 
+                <div>{error}</div>
             }
             <InputGroup className="mb-3">
 

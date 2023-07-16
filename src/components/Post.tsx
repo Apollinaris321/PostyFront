@@ -1,12 +1,13 @@
 import axios from "axios"
 import { url } from "./Url"
-import { useState, useEffect, FormEvent, useContext } from "react"
-import { Comment, CommentResponse, CommentSection } from "./Comment"
+import { useState, useEffect, useContext } from "react"
+import { CommentSection } from "./Comment"
 import { Button, Card, Form, Pagination } from "react-bootstrap"
 import { useNavigate, useParams } from "react-router"
 import { Link } from "react-router-dom"
 import { client } from "../api"
 import { userContext } from "../user"
+import "../index.css";
 
 export type PostResponse = {
     currentPage : number,
@@ -84,64 +85,70 @@ export function Post(){
     }
 
     return(
-        <div>
-            <Link to={"../"}>
-                Back
-            </Link>
-            <Card>
-                <Card.Header className="d-flex flex-row justify-content-around">
-                    <Link to={`/profile/${post?.authorName}`}  className="text-decoration-none">
-                        Profile: {post?.authorName}
-                    </Link>
-                    <div>
-                        {post?.createdAt}
-                    </div>
-                </Card.Header>
-                <Card.Body>
-                {
-                    edit ? 
-                    <UpdatePost post={post} updatePost={handleUpdatePost} setEdit={setEdit}></UpdatePost>
-                    :
-                    <div>
-                        <Card.Title>
+        <div className="postwrapper">
+            <div className="row wrapper">
+                <div className="col"></div>
+                <div className="col-6 d-flex flex-column gap-2">
+                    <Card >
+                        <Card.Header className="d-flex flex-row justify-content-around">
+                            <Link to={`/profile/${post?.authorName}`}  className="text-decoration-none">
+                                Profile: {post?.authorName}
+                            </Link>
                             <div>
-                                {post.title}
+                                {post?.createdAt}
                             </div>
-                        </Card.Title>
-                        <Card.Text>
+                        </Card.Header>
+                        <Card.Body>
+                        {
+                            edit ? 
+                            <UpdatePost post={post} updatePost={handleUpdatePost} setEdit={setEdit}></UpdatePost>
+                            :
                             <div>
-                                {post.text}
-                            </div>
-                        </Card.Text>
-                    </div>
-                }
-                </Card.Body>
-                <Card.Footer>
-                    { edit ? 
-                        null 
-                        : 
-                        <div className="d-flex flex-row gap-2">
-                            <div className="d-flex flex-row justify-content-center align-items-center gap-2">
-                                <div>
-                                    {post.likes}
-                                </div>
-                                <Button onClick={handleLike} variant="primary">like</Button>
-                                <Button onClick={handleDislike} variant="danger">dislike</Button>
-                            </div>
-                            {
-                                user?.username == post.authorName ? 
-                                    <div className="d-flex flex-row gap-2">
-                                        <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
-                                        <Button onClick={deletePost} variant="danger">delete</Button>
+                                <Card.Title>
+                                    <div>
+                                        {post.title}
                                     </div>
-                                :
-                                    null
+                                </Card.Title>
+                                <Card.Text>
+                                    <div>
+                                        {post.text}
+                                    </div>
+                                </Card.Text>
+                            </div>
+                        }
+                        </Card.Body>
+                        <Card.Footer>
+                            { edit ? 
+                                null 
+                                : 
+                                <div className="d-flex flex-row gap-2">
+                                    <div className="d-flex flex-row justify-content-center align-items-center gap-2">
+                                        <div>
+                                            {post.likes}
+                                        </div>
+                                        <Button onClick={handleLike} variant="primary">like</Button>
+                                        <Button onClick={handleDislike} variant="danger">dislike</Button>
+                                    </div>
+                                    {
+                                        user?.username == post.authorName ? 
+                                            <div className="d-flex flex-row gap-2">
+                                                <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
+                                                <Button onClick={deletePost} variant="danger">delete</Button>
+                                            </div>
+                                        :
+                                            null
+                                    }
+                                </div>
                             }
-                        </div>
-                    }
-                </Card.Footer>
-            </Card>
-            <CommentSection postId={id ? id : "1"}></CommentSection>
+                        </Card.Footer>
+                    </Card>
+                    <div className="text-center">
+                        Commentsection
+                    </div>
+                    <CommentSection postId={id ? id : "1"}></CommentSection>
+                </div>
+                <div className="col"></div>
+            </div>
         </div>
     )
 }
