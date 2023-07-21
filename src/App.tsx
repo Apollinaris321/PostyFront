@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {  RouterProvider } from 'react-router';
 import { createBrowserRouter } from 'react-router-dom';
-import Home from './components/Home';
-import { Post } from './components/Post';
+import Home from './pages/Home';
+import { Post } from './pages/Post';
 import { userContext, userInfo } from './user';
-import Profile from './components/Profile';
+import Profile from './pages/Profile';
 import TopNavbar from './components/Topnavbar';
 
 function App() {

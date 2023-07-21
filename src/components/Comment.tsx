@@ -86,17 +86,19 @@ export function Comment({comment , updateComment} : CommentProps){
     }
 
     return(
-        <Card>
-            <Card.Body>
-                <div className="d-flex flex-row align-items-center gap-2">
-                    <div>
-                        {comment.likes}
-                    </div>
-                    <div className="d-flex flex-column gap-1 justify-content-end">
-                        <Button size="sm" onClick={likeComment}>like</Button>
-                        <Button size="sm" variant="danger" onClick={dislikeComment}>dislike</Button>
-                    </div>
-                    <div className="d-flex flex-column w-100">
+        <div className="postPreview">
+            <div className="header">
+                <div className="authorName">
+                    <Link className="linkText" to={`/profile/${comment?.authorName}`}>
+                        @{comment.authorName}
+                    </Link>
+                </div>
+                <div className="date">
+                    {convertDateTime(comment.createdAt)}
+                </div>
+            </div>
+                <Link className="linkText" to={`/post/${comment.id}`}>
+                    <div className="title">
                             {
                                 edit ? 
                                     <Form>
@@ -109,39 +111,34 @@ export function Comment({comment , updateComment} : CommentProps){
                                     {comment.text}
                                 </div>
                             }
-                        <Card.Footer>
-
-                        <div className="d-flex flex-row align-items-end justify-content-between gap-2">
-                            <Link to="/" className="linkText">
-                                {comment.authorName}
-                            </Link>
-                            <div>
-                                {convertDateTime(comment.createdAt)}
-                            </div>
-                            {
-                                user?.username == comment.authorName ? 
-                                <>
-                                    {
-                                        edit ? 
-                                        <div className="d-flex flex-row gap-1">
-                                            <Button size="sm" variant="primary" onClick={handleEditComment}>update</Button>
-                                            <Button size="sm" variant="danger" onClick={() => {setEdit(edit ? false : true)}}>close</Button>
-                                        </div>
-                                        :
-                                        <div className="d-flex flex-row gap-1">
-                                            <Button size="sm" variant="primary" onClick={() => setEdit(true)}>edit</Button>
-                                            <Button size="sm" variant="danger" onClick={handleDeleteComment}>delete</Button>
-                                        </div>
-                                    }
-                                </>
-                                : null
-                            }
-                        </div>
-                        </Card.Footer>
                     </div>
+                </Link>
+                <div className="d-flex flex-row">
+                    {comment.likes}
+                    <div className="d-flex flex-row gap-1 justify-content-end">
+                        <Button size="sm" onClick={likeComment}>like</Button>
+                        <Button size="sm" variant="danger" onClick={dislikeComment}>dislike</Button>
+                    </div>
+                    {
+                        user?.username == comment.authorName ? 
+                        <>
+                            {
+                                edit ? 
+                                <div className="d-flex flex-row gap-1">
+                                    <Button size="sm" variant="primary" onClick={handleEditComment}>save</Button>
+                                    <Button size="sm" variant="danger" onClick={() => {setEdit(edit ? false : true)}}>discard</Button>
+                                </div>
+                                :
+                                <div className="d-flex flex-row gap-1">
+                                    <Button size="sm" variant="primary" onClick={() => setEdit(true)}>edit</Button>
+                                    <Button size="sm" variant="danger" onClick={handleDeleteComment}>delete</Button>
+                                </div>
+                            }
+                        </>
+                        : null
+                    }
                 </div>
-            </Card.Body>
-        </Card>
+        </div>
     )
 }
 

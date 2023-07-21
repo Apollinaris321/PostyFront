@@ -1,10 +1,10 @@
 import { Link, useParams } from "react-router-dom";
-import { Comment, CommentResponse } from "./Comment";
+import { Comment, CommentResponse } from "../components/Comment";
 import {  useEffect, useState } from "react";
 import { Post, PostResponse } from "./Post";
 import { Button, ButtonGroup, Card, Pagination, Spinner, Tab, Tabs, ToggleButton } from "react-bootstrap";
 import { client } from "../api";
-import { Page } from "./Page";
+import { Page } from "../components/Page";
 
 export default function Profile() {
     const [comments, setComments] = useState<Comment[]>([])

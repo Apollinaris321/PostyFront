@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useState } from "react"
 import { Button, Form } from "react-bootstrap"
-import { Post } from "./Post"
+import { Post } from "../pages/Post"
 import { url } from "./Url"
 
 export type AddPostProp = {

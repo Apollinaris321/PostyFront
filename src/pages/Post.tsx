@@ -1,13 +1,14 @@
 import axios from "axios"
-import { url } from "./Url"
+import { url } from "../components/Url"
 import { useState, useEffect, useContext } from "react"
-import { CommentSection } from "./Comment"
+import { CommentSection } from "../components/Comment"
 import { Button, Card, Form, Pagination } from "react-bootstrap"
 import { useNavigate, useParams } from "react-router"
 import { Link } from "react-router-dom"
 import { client } from "../api"
 import { userContext } from "../user"
 import "../index.css";
+import { PostPreviewLike } from "../components/PostDisplay"
 
 export type PostResponse = {
     currentPage : number,
@@ -84,71 +85,71 @@ export function Post(){
         }
     }
 
+    function convertDateTime(date : string){
+        let timestamp = Date.parse(date)
+        let newDate = new Date(timestamp)
+        return newDate.toDateString()
+    }
+
     return(
-        <div className="postwrapper">
-            <div className="row wrapper">
-                <div className="col"></div>
-                <div className="col-6 d-flex flex-column gap-2">
-                    <Card >
-                        <Card.Header className="d-flex flex-row justify-content-around">
-                            <Link to={`/profile/${post?.authorName}`}  className="text-decoration-none">
-                                Profile: {post?.authorName}
+        <div className="postwrapper row">
+            <div className="col"></div>
+            <div className="col-6">
+                <div className="postPreview">
+                    <div className="header">
+                        <div className="authorName">
+                            <Link className="linkText" to={`/profile/${post?.authorName}`}>
+                                @{post.authorName}
                             </Link>
-                            <div>
-                                {post?.createdAt}
-                            </div>
-                        </Card.Header>
-                        <Card.Body>
+                        </div>
+                        <div className="date">
+                            {convertDateTime(post.createdAt)}
+                        </div>
+                    </div>
+
+                    <div>
                         {
                             edit ? 
                             <UpdatePost post={post} updatePost={handleUpdatePost} setEdit={setEdit}></UpdatePost>
                             :
-                            <div>
-                                <Card.Title>
-                                    <div>
-                                        {post.title}
-                                    </div>
-                                </Card.Title>
-                                <Card.Text>
-                                    <div>
-                                        {post.text}
-                                    </div>
-                                </Card.Text>
+                            <div className="title">
+                                {post.title}
                             </div>
                         }
-                        </Card.Body>
-                        <Card.Footer>
-                            { edit ? 
-                                null 
-                                : 
-                                <div className="d-flex flex-row gap-2">
-                                    <div className="d-flex flex-row justify-content-center align-items-center gap-2">
-                                        <div>
-                                            {post.likes}
-                                        </div>
-                                        <Button onClick={handleLike} variant="primary">like</Button>
-                                        <Button onClick={handleDislike} variant="danger">dislike</Button>
-                                    </div>
-                                    {
-                                        user?.username == post.authorName ? 
-                                            <div className="d-flex flex-row gap-2">
-                                                <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
-                                                <Button onClick={deletePost} variant="danger">delete</Button>
-                                            </div>
-                                        :
-                                            null
-                                    }
-                                </div>
-                            }
-                        </Card.Footer>
-                    </Card>
+                    </div>
+                    <div className="footer">
+                        { edit ? 
+                           null 
+                           : 
+                           <div className="d-flex flex-row gap-2">
+                               <div className="d-flex flex-row justify-content-center align-items-center gap-2">
+                                   <div>
+                                       {post.likes}
+                                   </div>
+                                   <Button onClick={handleLike} variant="primary">like</Button>
+                                   <Button onClick={handleDislike} variant="danger">dislike</Button>
+                               </div>
+                               {
+                                   user?.username == post.authorName ? 
+                                       <div className="d-flex flex-row gap-2">
+                                           <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
+                                           <Button onClick={deletePost} variant="danger">delete</Button>
+                                       </div>
+                                   :
+                                       null
+                               }
+                           </div>
+                        }
+                    </div>
+                </div>
+                <div className="d-flex flex-column">
                     <div className="text-center">
                         Commentsection
                     </div>
                     <CommentSection postId={id ? id : "1"}></CommentSection>
                 </div>
-                <div className="col"></div>
             </div>
+            <div className="col"></div>
         </div>
     )
 }
