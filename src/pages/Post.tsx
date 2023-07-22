@@ -8,7 +8,6 @@ import { Link } from "react-router-dom"
 import { client } from "../api"
 import { userContext } from "../user"
 import "../index.css";
-import { PostPreviewLike } from "../components/PostDisplay"
 
 export type PostResponse = {
     currentPage : number,
@@ -28,6 +27,9 @@ export type Post = {
 export function Post(){
     const [post, setPost] = useState<Post>({title: "", text: "", likes: 0,authorName: "", id: 0, createdAt: ""})
     const [edit, setEdit] = useState(false)
+    const [title, setTitle] = useState(post.title)
+    const [text, setText] = useState(post.text)
+
     const navigate = useNavigate();
     const {id} = useParams()
     const {user} = useContext(userContext)
@@ -91,6 +93,25 @@ export function Post(){
         return newDate.toDateString()
     }
 
+    function handleTextEditChange(e : React.ChangeEvent<HTMLInputElement>){
+        setText(e.currentTarget.value)
+    }
+
+    function handleTitleEditChange(e : React.ChangeEvent<HTMLInputElement>){
+        setTitle(e.currentTarget.value)
+    }
+
+    async function saveEdit(){
+        try{
+            const response = await client.put(`/post/${post.id}`, {text : text, title: title})
+            const postResponse = response.data as Post
+            handleUpdatePost({...post, title : postResponse.title, text : postResponse.text}, "update")
+            setEdit(false)
+        }catch(error){
+            console.log("edit post error: ", error);
+        }
+    }
+
     return(
         <div className="postwrapper row">
             <div className="col"></div>
@@ -110,36 +131,23 @@ export function Post(){
                     <div>
                         {
                             edit ? 
-                            <UpdatePost post={post} updatePost={handleUpdatePost} setEdit={setEdit}></UpdatePost>
+                            <input onChange={handleTitleEditChange} value={title}></input>
                             :
                             <div className="title">
                                 {post.title}
                             </div>
                         }
                     </div>
-                    <div className="footer">
-                        { edit ? 
-                           null 
-                           : 
-                           <div className="d-flex flex-row gap-2">
-                               <div className="d-flex flex-row justify-content-center align-items-center gap-2">
-                                   <div>
-                                       {post.likes}
-                                   </div>
-                                   <Button onClick={handleLike} variant="primary">like</Button>
-                                   <Button onClick={handleDislike} variant="danger">dislike</Button>
-                               </div>
-                               {
-                                   user?.username == post.authorName ? 
-                                       <div className="d-flex flex-row gap-2">
-                                           <Button onClick={() => setEdit(edit ? false : true)}>edit</Button>
-                                           <Button onClick={deletePost} variant="danger">delete</Button>
-                                       </div>
-                                   :
-                                       null
-                               }
-                           </div>
-                        }
+                    <div className="footer d-flex flex-row gap-1">
+                        <div>
+                            {post.likes}
+                        </div>
+                        <button className="btn btn-sm btn-primary" onClick={handleLike}>like</button>
+                        <button className="btn btn-sm btn-danger" onClick={handleDislike}>dislike</button>
+                        {user?.username == post.authorName && edit == false ? <button className="btn btn-sm btn-primary" onClick={() => setEdit(edit ? false : true)}>edit</button> : null }
+                        {user?.username == post.authorName && edit == false ? <button className="btn btn-sm btn-danger" onClick={deletePost} >delete</button> : null }
+                        { edit ? <button className="btn btn-sm btn-primary" onClick={saveEdit}>save</button> : null }
+                        { edit ? <button className="btn btn-sm btn-danger" onClick={() => setEdit(false)}>discard</button> : null }
                     </div>
                 </div>
                 <div className="d-flex flex-column">
@@ -150,58 +158,6 @@ export function Post(){
                 </div>
             </div>
             <div className="col"></div>
-        </div>
-    )
-}
-
-export type UpdatePostProp = {
-    post : Post,
-    updatePost : (p : Post, operation : "add" | "remove" | "update") => void,
-    setEdit : (b : boolean) => void
-}
-
-function UpdatePost(props : UpdatePostProp){
-    const [title, setTitle] = useState(props.post.title)
-    const [text, setText] = useState(props.post.text)
-
-    useEffect(() => {
-        setTitle(props.post.title)
-        setText(props.post.text)
-    },[props.post])
-
-    function handleTextEditChange(e : React.ChangeEvent<HTMLInputElement>){
-        setText(e.currentTarget.value)
-    }
-
-    function handleTitleEditChange(e : React.ChangeEvent<HTMLInputElement>){
-        setTitle(e.currentTarget.value)
-    }
-
-    async function saveEdit(){
-        try{
-            const response = await client.put(`/post/${props.post.id}`, {text : text, title: title})
-            const postResponse = response.data as Post
-            props.updatePost({...props.post, title : postResponse.title, text : postResponse.text}, "update")
-            props.setEdit(false)
-        }catch(error){
-            console.log("edit post error: ", error);
-        }
-    }
-
-    return(
-        <div>
-            <Form>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                <Form.Label>Title</Form.Label>
-                <Form.Control type="text" onChange={handleTitleEditChange} value={title}/>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                <Form.Label>Text</Form.Label>
-                <Form.Control type="text" onChange={handleTextEditChange} value={text}/>
-              </Form.Group>
-            </Form>
-            <Button onClick={saveEdit}>save</Button>
-            <Button onClick={() => props.setEdit(false)} variant="danger">discard</Button>
         </div>
     )
 }

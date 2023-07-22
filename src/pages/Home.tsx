@@ -1,12 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {  Post,  PostResponse } from "./Post";
 import { client } from "../api";
 import { Page } from "../components/Page";
-import { Link, ScrollRestoration } from "react-router-dom";
-import { Auth, Logout } from "../components/Auth";
 import { AddPost } from "../components/AddPost";
-import { Button, Card } from "react-bootstrap";
-import { userContext } from "../user";
 import '../index.css';
 import { PostTitleCard } from "../components/PostDisplay";
 
@@ -50,25 +46,26 @@ export default function Home(){
     }
 
     return(
-        <div className="home row">
-            <div className="col-sm"></div>
-            <div className="col-6 d-flex flex-column gap-2">
-                <AddPost updatePost={handleUpdatePost}></AddPost>
+        <div className="row">
+            <div className="col"></div>
+            <div className="col-6">
                 <div className="d-flex flex-column gap-2">
-                    {posts.map(p => {
-                        return(
-                            <div key={p.id}>
-                                <PostTitleCard post={p} updatePost={handleUpdatePost}></PostTitleCard>
-                            </div>
-                        )
-                    })}
-                </div>
-                <div className="d-flex justify-content-center">
-                    <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
+                    <AddPost updatePost={handleUpdatePost}></AddPost>
+                    <div className="d-flex flex-column gap-2">
+                        {posts.map(p => {
+                            return(
+                                <div key={p.id}>
+                                    <PostTitleCard post={p} updatePost={handleUpdatePost}></PostTitleCard>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
+                    </div>
                 </div>
             </div>
-            <div className="col-sm"></div>
-            <ScrollRestoration></ScrollRestoration>
+            <div className="col"></div>
         </div>
     )
 }

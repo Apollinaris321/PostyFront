@@ -1,12 +1,11 @@
 import axios from "axios";
-import { useState, FormEvent, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { url } from "./Url";
-import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import { client } from "../api";
 import { Page } from "./Page";
-import { useParams } from "react-router";
 import { userContext } from "../user";
 import { Link } from "react-router-dom";
+import { MdFavoriteBorder, MdFavorite } from 'react-icons/md';
 
 export type Comment = {
     authorName : string,
@@ -101,11 +100,7 @@ export function Comment({comment , updateComment} : CommentProps){
                     <div className="title">
                             {
                                 edit ? 
-                                    <Form>
-                                      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                        <Form.Control type="text" onChange={handleCommentTextChange} value={text}/>
-                                      </Form.Group>
-                                    </Form>
+                                <input type="text" onChange={handleCommentTextChange} value={text}></input>
                                 :
                                 <div className="fs-4 d-flex align-content-center justify-content-start">
                                     {comment.text}
@@ -113,30 +108,18 @@ export function Comment({comment , updateComment} : CommentProps){
                             }
                     </div>
                 </Link>
-                <div className="d-flex flex-row">
+                <div className="d-flex flex-row gap-1 justify-content-start pt-1">
                     {comment.likes}
-                    <div className="d-flex flex-row gap-1 justify-content-end">
-                        <Button size="sm" onClick={likeComment}>like</Button>
-                        <Button size="sm" variant="danger" onClick={dislikeComment}>dislike</Button>
-                    </div>
-                    {
-                        user?.username == comment.authorName ? 
-                        <>
-                            {
-                                edit ? 
-                                <div className="d-flex flex-row gap-1">
-                                    <Button size="sm" variant="primary" onClick={handleEditComment}>save</Button>
-                                    <Button size="sm" variant="danger" onClick={() => {setEdit(edit ? false : true)}}>discard</Button>
-                                </div>
-                                :
-                                <div className="d-flex flex-row gap-1">
-                                    <Button size="sm" variant="primary" onClick={() => setEdit(true)}>edit</Button>
-                                    <Button size="sm" variant="danger" onClick={handleDeleteComment}>delete</Button>
-                                </div>
-                            }
-                        </>
-                        : null
-                    }
+                    <button className="btn btn-sm btn-primary" onClick={likeComment}>
+                        <MdFavoriteBorder></MdFavoriteBorder>
+                    </button>
+                    <button className="btn btn-sm btn-danger" onClick={dislikeComment}>
+                        <MdFavorite></MdFavorite>
+                    </button>
+                    { user?.username == comment.authorName && edit == false ? <button className="btn btn-sm btn-primary" onClick={() => setEdit(true)}>edit</button> : null }
+                    { user?.username == comment.authorName && edit == false ? <button className="btn btn-sm btn-danger" onClick={handleDeleteComment}>delete</button> : null }
+                    {edit ? <button className="btn btn-sm btn-primary" onClick={handleEditComment}>save</button> : null }
+                    {edit ? <button className="btn btn-sm btn-danger" onClick={() => {setEdit(edit ? false : true)}}>discard</button> : null}
                 </div>
         </div>
     )
@@ -171,17 +154,12 @@ export function UpdateComment(props : UpdateCommentProp){
             {
                 edit ? 
                 <div>
-                    <Form>
-                      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                        <Form.Label>edit comment: </Form.Label>
-                        <Form.Control type="text" onChange={handleCommentTextChange} value={text}/>
-                      </Form.Group>
-                    </Form>
-                    <Button onClick={handleEditComment} variant="primary">update</Button>
-                    <Button onClick={() => {setEdit(edit ? false : true)}}>close</Button>
+                    <input type="text" onChange={handleCommentTextChange} value={text}></input>
+                    <button className="btn btn-sm btn-primary" onClick={handleEditComment} >update</button>
+                    <button  className="btn btn-sm btn-danger" onClick={() => {setEdit(edit ? false : true)}}>close</button>
                 </div>
                 :
-                <Button size="sm" onClick={() => {setEdit(edit ? false : true)}}>edit</Button>
+                <button  className="btn btn-sm btn-danger" onClick={() => {setEdit(edit ? false : true)}}>close</button>
             }
         </div>
     )
@@ -285,7 +263,7 @@ function AddComment(prop : AddCommentProp){
         }
     }
 
-    function handleCommentInput(e : React.ChangeEvent<HTMLInputElement>){
+    function handleCommentInput(e : React.ChangeEvent<HTMLTextAreaElement>){
         setError("")
         setNewComment(e.currentTarget.value);
     }
@@ -297,11 +275,8 @@ function AddComment(prop : AddCommentProp){
                 null : 
                 <div>{error}</div>
             }
-            <InputGroup className="mb-3">
-
-                <Form.Control rows={2}  as="textarea" onChange={handleCommentInput} value={newComment}/>
-                <Button onClick={sendComment}>send</Button>
-            </InputGroup>
+            <textarea rows={2} onChange={handleCommentInput} value={newComment}></textarea>
+            <button onClick={sendComment}>send</button>
         </div>
     )
 }
