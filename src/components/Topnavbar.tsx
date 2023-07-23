@@ -1,22 +1,27 @@
 import { Container, Navbar } from "react-bootstrap";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { userContext } from "../user";
 import { useContext } from "react";
 import { Auth, Logout } from "./Auth";
+import { ArrowBack } from "@mui/icons-material";
 import "../index.css"
 
 export default function TopNavbar() {
     const {user} = useContext(userContext)
+    const location = useLocation();
 
     return(
         <div className="all">
             <Navbar bg="primary" data-bs-theme="light">
                 <Container fluid >
-                    <Link to="../" className="customLink">
-                        Back
-                    </Link>
+                    {
+                        location.pathname == "/" ? <div></div> : 
+                        <Link to="../" className="customLink">
+                            <ArrowBack></ArrowBack>
+                        </Link>
+                    }
                     <Link className="customLink" to="/">
-                        Home
+                        Posty
                     </Link>
                     <div className="logout">
                         {

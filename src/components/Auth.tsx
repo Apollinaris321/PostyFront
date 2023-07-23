@@ -3,6 +3,8 @@ import {client} from '../api'
 import { useContext, useEffect, useState } from "react"
 import { Button, ButtonGroup, Form, Modal, ToggleButton } from "react-bootstrap"
 import { userContext } from "../user"
+import { MdLogin, MdLogout } from "react-icons/md"
+import { IconContext } from "react-icons/lib/esm/iconContext"
 
 type AuthError = {
     Username : string[],
@@ -95,7 +97,16 @@ export function Auth(){
 
     return(
         <div>
-            <Button size="sm" onClick={() => setShow(show ? false : true)}>Login</Button>
+            <button className="btn d-flex flex-row gap-1 align-items-center justify-content-center" onClick={() => setShow(show ? false : true)}>
+                <div className="navbartext">
+                    Login
+                </div>
+                <div>
+                    <IconContext.Provider value={{color: "white"}}>
+                        <MdLogin></MdLogin>
+                    </IconContext.Provider>
+                </div>
+            </button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <ButtonGroup>
@@ -197,8 +208,16 @@ export function Logout(){
     }
 
     return(
+
         <div>
-            <Button size="sm" onClick={handleLogout} variant="primary">logout</Button>
+            <button className="btn d-flex gap-1 flex-row align-items-center justify-content-center" onClick={handleLogout}>
+                <div className="navbartext">
+                    Logout
+                </div>
+                <IconContext.Provider value={{color: "white"}}>
+                    <MdLogout ></MdLogout>
+                </IconContext.Provider>
+            </button>
         </div>
     )
 }

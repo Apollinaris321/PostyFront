@@ -8,19 +8,14 @@ export type AddPostProp = {
 export function AddPost({sendPost}: AddPostProp){
     const [text , setText] = useState("")
 
-    function handleTextChange(e : React.ChangeEvent<HTMLInputElement>){
+    function handleTextChange(e : React.ChangeEvent<HTMLTextAreaElement>){
         setText(e.currentTarget.value)
     }
 
     return(
-        <div>
-            <Form>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                <Form.Label>Text</Form.Label>
-                <Form.Control  as="textarea" rows={3} type="text" onChange={handleTextChange} value={text}/> 
-              </Form.Group>
-            </Form>
-            <Button onClick={() => sendPost(text)}>post it!</Button>
+        <div className="d-flex flex-column gap-1 align-items-start justify-content-center">
+            <textarea className="form-control" rows={3} onChange={handleTextChange} value={text}></textarea>
+            <button className="btn btn-primary" onClick={() => sendPost(text)}>post</button>
         </div>
     )
 }

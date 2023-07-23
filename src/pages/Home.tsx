@@ -79,7 +79,7 @@ export default function Home(){
         <div className="row">
             <div className="col"></div>
             <div className="col-6">
-                <div className="d-flex flex-column gap-2">
+                <div className="d-flex flex-column pt-1 gap-2">
                     <div>
                         <AddPost sendPost={handleSendPost}></AddPost>
                     </div>
