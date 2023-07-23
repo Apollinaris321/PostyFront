@@ -32,16 +32,6 @@ code {
   height:100vh;
 }
 
-.linkText{
-  text-decoration: none;
-  color: black;
-}
-
-.customLink{
-  text-decoration: none;
-  color: white;
-}
-
 .postwrapper{
   height: 100vh;
 }
@@ -51,13 +41,15 @@ code {
   padding-top: 1em;
 }
 
-.commentcard{
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-
+.linkText{
+  text-decoration: none;
+  color: black;
 }
 
+.customLink{
+  text-decoration: none;
+  color: white;
+}
 
 .postPreview{
   display: flex;
@@ -92,26 +84,7 @@ code {
   color: rgba(0,0,0,0.4);
 }
 
-.likes{
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  gap: .1em;
-  padding-left: 1em;
-  align-items: center;
-}
-
-.likeCounter{
-  color: rgba(240,0,0,0.8);
-  font-weight: bold;
-}
-
-.likeButton{
-  border: 0;
-  border-radius: .5em;
-  background-color: rgba(0,0,240, 1)
-}
-
-.footer{
-  padding-top: .2em;
+.like{
+  border: none;
+  background-color: white; 
 }

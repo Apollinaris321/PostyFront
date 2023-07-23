@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { url } from './components/Url';
+import { url } from './Url';
 
 export const client = axios.create({
   baseURL: url,

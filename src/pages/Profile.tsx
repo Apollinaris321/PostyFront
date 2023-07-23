@@ -1,45 +1,60 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Comment, CommentResponse } from "../components/Comment";
 import {  useEffect, useState } from "react";
 import { Post, PostResponse } from "./Post";
-import { Button, ButtonGroup, Card, Pagination, Spinner, Tab, Tabs, ToggleButton } from "react-bootstrap";
+import { Tab, Tabs } from "react-bootstrap";
 import { client } from "../api";
 import { Page } from "../components/Page";
+import { Card } from "../components/Card";
+import { ProfileCard } from "../components/ProfileCard";
+
+export type Profile = {
+    username : string,
+    email : string
+}
 
 export default function Profile() {
     const [comments, setComments] = useState<Comment[]>([])
     const [commentPage, setCommentPage] = useState(1)
     const [commentLastPage, setCommentLastPage] = useState(1)
+
     const [posts, setPosts] = useState<Post[]>([])
     const [postPage, setPostPage] = useState(1)
     const [postLastPage, setPostLastPage] = useState(1)
+
     const [profile, setProfile] = useState<Profile | null>(null)
-
-    const [show, setShow] = useState("comment")
-
+    const [show, setShow] = useState("post")
     const {id} = useParams()
 
     useEffect(() => {
-        if(show == "comment"){
-            getComments(commentPage)
-            setPosts([])
-        }else{
+        if(show == "post"){
             getPosts(postPage)
-            setComments([])
+        }else{
+            getComments(commentPage)
         }
-    },[])
 
-    useEffect(() => {
         if(id){
             getProfile(id)
         }
     },[])
 
+    useEffect(() => {
+        console.log("posts: ", posts);
+        
+    },[posts])
+
+    function handleShow(val : string){
+        setShow(val)
+        if(val == "post"){
+            getPosts(postPage)
+        }else if(val == "comment"){
+            getComments(commentPage)
+        }
+    }
+
     async function getProfile(id : string){
         try{
             const response = await client.get(`profile/${id}`)
-            await getComments(commentPage)
-            await getPosts(postPage)
             setProfile(response.data)
         }catch(error){
             console.log("get profile error: ", error);
@@ -62,7 +77,7 @@ export default function Profile() {
         try{
             const response = await client.get(`profile/${id}/posts?pageSize=10&pageNumber=${page}&sort=new`);
             let responseData = response.data as PostResponse
-            setPosts(responseData.posts)
+            setPosts([...responseData.posts])
             setPostPage(responseData.currentPage)
             setPostLastPage(responseData.lastPage)
         }catch(error){
@@ -70,11 +85,65 @@ export default function Profile() {
         }
     }
 
-    function convertDateTime(date : string){
-        let timestamp = Date.parse(date)
-        let newDate = new Date(timestamp)
-        return newDate.toDateString()
+    async function handlePostDislike(id : string | number){
+        try{
+            const response = await client.delete(`/post/${id}/likes` )
+            setPosts([...posts.map(p => {
+                if(p.id == id){
+                    return {...p, likes : p.likes - 1, likedByYou: false}
+                }else{
+                    return p
+                }
+            })])
+        }catch(error){
+            console.log("post dislike error: ", error);
+        }
     }
+
+    async function handlePostLike(id : string | number){
+        try{
+            const response = await client.post(`/post/${id}/likes` )
+            setPosts([...posts.map(p => {
+                if(p.id == id){
+                    return {...p, likes : p.likes + 1, likedByYou: true}
+                }else{
+                    return p
+                }
+            })])
+        }catch(error){
+            console.log("post like error: ", error);
+        }
+    }
+ 
+    async function handleCommentDislike(id : string | number){
+        try{
+            const response = await client.delete(`/comment/${id}/likes` )
+            setComments([...comments.map(c => {
+                if(c.id == id){
+                    return {...c, likes : c.likes - 1, likedByYou: false}
+                }else{
+                    return c
+                }
+            })])
+        }catch(error){
+            console.log("comment dislike error: ", error);
+        }
+    }
+
+    async function handleCommentLike(id : string | number){
+        try{
+            const response = await client.post(`/comment/${id}/likes` )
+            setComments([...comments.map(c => {
+                if(c.id == id){
+                    return {...c, likes : c.likes + 1, likedByYou: true}
+                }else{
+                    return c
+                }
+            })])
+        }catch(error){
+            console.log("post like error: ", error);
+        }
+    }   
 
     return(
         <div className="row wrapper">
@@ -82,108 +151,52 @@ export default function Profile() {
             <div className="col-8">
                 <div className="d-flex flex-column gap-2">
                     <ProfileCard profile={profile}></ProfileCard>
-                    <Tabs className="d-flex justify-content-center" defaultActiveKey="posts" id="profileContent">
-                        <Tab onClick={() => setShow("post")} eventKey="posts" title="Posts">
+                    <div className="d-flex flex-column gap-1">
+                        <div className="d-flex flex-row align-items-center justify-content-center gap-1">
+                            <button className={show  == "post" ?  "btn btn-primary" : "btn btn-outline-primary"} onClick={() => handleShow("post")}>post</button>
+                            <button className={show  == "comment" ?  "btn btn-primary" : "btn btn-outline-primary"} onClick={() => handleShow("comment")}>comment</button>
+                        </div>
+                        <div>
+                            {show == "post"?
                             <div className="d-flex flex-column gap-2">
                                 {posts.map(post =>
                                     <div key={post.id}>
-                                        <Card >
-                                            <Card.Header className="d-flex flex-row justify-content-around">
-                                                <Link to={`/profile/${post?.authorName}`}  className="linkText">
-                                                    {post?.authorName}
-                                                </Link>
-                                                <div>
-                                                    {post?.createdAt}
-                                                </div>
-                                            </Card.Header>
-                                            <Card.Body>
-                                                <div>
-                                                    <Card.Title>
-                                                        <Link className="linkText" to={`../post/${post.id}`}>
-                                                            <div>
-                                                                {post.title}
-                                                            </div>
-                                                        </Link>
-                                                    </Card.Title>
-                                                    <Card.Text>
-                                                        <div>
-                                                            {post.text}
-                                                        </div>
-                                                    </Card.Text>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>    
+                                        <Card 
+                                            info={{...post}}
+                                            linkTo={`/post/${post.id}`}
+                                            handleDislike={handlePostDislike}
+                                            handleLike={handlePostLike}
+                                        />
                                     </div>
-                                )}
+                                )}                           
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <Page updatePage={getPosts} lastPage={postLastPage} page={postPage}></Page>
+                                </div>
                             </div>
-                            <div className="d-flex justify-content-center ">
-                                <Page updatePage={setPostPage} page={postPage} lastPage={postLastPage}></Page>
-                            </div>
-                        </Tab>
-                        <Tab  onClick={() => setShow("comment")} eventKey="comments" title="Comments">
+                                :
                             <div className="d-flex flex-column gap-2">
                                 {comments.map(comment => 
                                     <div key={comment.id}>
-                                        <Card>
-                                            <Card.Body>
-                                                <div className="d-flex flex-row align-items-center gap-2">
-                                                    <div>
-                                                        {comment.likes}
-                                                    </div>
-                                                    <div className="d-flex flex-column w-100">
-                                                        <div className="fs-4 d-flex align-content-center justify-content-start">
-                                                            {comment.text}
-                                                        </div>
-                                                        <Card.Footer>
-                                                            <div className="d-flex flex-row align-items-end justify-content-between gap-2">
-                                                                <Link to="/" className="linkText">
-                                                                    {comment.authorName}
-                                                                </Link>
-                                                                <div>
-                                                                    {convertDateTime(comment.createdAt)}
-                                                                </div>
-                                                            </div>
-                                                        </Card.Footer>
-                                                    </div>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>
+                                        <Card 
+                                            info={{...comment}}
+                                            linkTo={`/post/${comment.postId}`}
+                                            handleDislike={handleCommentDislike}
+                                            handleLike={handleCommentLike}
+                                        />
                                     </div>
                                 )}
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <Page updatePage={getComments} lastPage={commentLastPage} page={commentPage}></Page>
+                                </div>
                             </div>
-                            <div className="d-flex justify-content-center ">
-                                <Page updatePage={setCommentPage} page={commentPage} lastPage={commentLastPage}></Page>
-                            </div>
-                        </Tab>
-                    </Tabs>
+                        }
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
             <div className="col"></div>
         </div>
-    )
-}
-
-export type Profile = {
-    username : string,
-    email : string
-}
-
-export type ProfileCardProp = {
-    profile : Profile | null
-}
-
-export function ProfileCard({profile} : ProfileCardProp){
-    return(
-        <Card>
-            <Card.Header>Profile</Card.Header>
-            <Card.Body>
-                <Card.Text>
-                    Username: {profile ? profile.username : ""}
-                </Card.Text>
-                <Card.Text>
-                    Email: {profile ? profile.email : ""}
-                </Card.Text>
-            </Card.Body>
-        </Card>
     )
 }

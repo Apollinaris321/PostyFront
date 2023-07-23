@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {  RouterProvider } from 'react-router';
 import { createBrowserRouter } from 'react-router-dom';
@@ -7,10 +7,25 @@ import { Post } from './pages/Post';
 import { userContext, userInfo } from './user';
 import Profile from './pages/Profile';
 import TopNavbar from './components/Topnavbar';
+import { client } from './api';
 
 function App() {
 
   const [user, setUser] = useState<userInfo | null>(null)
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try{
+        const response = await client.get("Profile")
+        const userData = response.data;
+        console.log("userdata: ", response);
+        setUser({...userData})
+      }catch(error){
+        console.log("getuserdata error: ", error);
+      }
+    }
+    getUserData()
+  },[])
 
   const router = createBrowserRouter([
     {

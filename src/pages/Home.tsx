@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {  Post,  PostResponse } from "./Post";
 import { client } from "../api";
 import { Page } from "../components/Page";
 import { AddPost } from "../components/AddPost";
+import { Card } from "../components/Card";
+import { userContext } from "../user";
 import '../index.css';
-import { PostTitleCard } from "../components/PostDisplay";
 
 export default function Home(){
     const [posts, setPosts] = useState<Post[]>([])
     const [page, setPage] = useState(1)
     const [lastPage, setLastPage] = useState(1)
+    const {user} = useContext(userContext)
 
     useEffect(() => {
         loadPage(page)
@@ -27,21 +29,49 @@ export default function Home(){
         }
     }
 
-    function handleUpdatePost(newPost : Post, operation : "update" | "remove" | "add"){
-        if(operation == "remove"){
-            //setPosts([...posts.filter(p => p.id != newPost.id)])
-            loadPage(page)
-        }else if(operation == "update"){
+    async function handleSendPost(newText : string){
+        try{
+            const response = await client.post('/post', {title : "empty", text : newText})
+            console.log(response.data);
+            const newPost = response.data as Post
+            const newPosts = [...posts]
+            if(posts.length >= 10){
+                newPosts.pop()
+            }
+            setPosts([newPost, ...newPosts])
+        }catch(error){
+            console.log("send post error: ", error);
+        }
+
+    }
+
+    async function handleDislike(id : string | number){
+        try{
+            const response = await client.delete(`/post/${id}/likes` )
             setPosts([...posts.map(p => {
-                if(p.id == newPost.id){
-                    return newPost
+                if(p.id == id){
+                    return {...p, likes : p.likes - 1, likedByYou: false}
                 }else{
                     return p
                 }
             })])
-        }else if(operation == "add"){
-            loadPage(page)
-            //setPosts([{...newPost}, ...posts])
+        }catch(error){
+            console.log("post dislike error: ", error);
+        }
+    }
+
+    async function handleLike(id : string | number){
+        try{
+            const response = await client.post(`/post/${id}/likes` )
+            setPosts([...posts.map(p => {
+                if(p.id == id){
+                    return {...p, likes : p.likes + 1, likedByYou: true}
+                }else{
+                    return p
+                }
+            })])
+        }catch(error){
+            console.log("post like error: ", error);
         }
     }
 
@@ -50,16 +80,24 @@ export default function Home(){
             <div className="col"></div>
             <div className="col-6">
                 <div className="d-flex flex-column gap-2">
-                    <AddPost updatePost={handleUpdatePost}></AddPost>
+                    <div>
+                        <AddPost sendPost={handleSendPost}></AddPost>
+                    </div>
                     <div className="d-flex flex-column gap-2">
                         {posts.map(p => {
                             return(
                                 <div key={p.id}>
-                                    <PostTitleCard post={p} updatePost={handleUpdatePost}></PostTitleCard>
+                                    <Card 
+                                        info={p} 
+                                        linkTo={`Post/${p.id}`} 
+                                        handleLike={handleLike}
+                                        handleDislike={handleDislike}
+                                    />
                                 </div>
                             )
                         })}
                     </div>
+
                     <div className="d-flex justify-content-center">
                         <Page page={page} lastPage={lastPage} updatePage={setPage}></Page>
                     </div>

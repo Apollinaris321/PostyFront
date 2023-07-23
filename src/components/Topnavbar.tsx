@@ -1,9 +1,9 @@
 import { Container, Navbar } from "react-bootstrap";
 import { Link, Outlet } from "react-router-dom";
-import "../index.css"
 import { userContext } from "../user";
 import { useContext } from "react";
 import { Auth, Logout } from "./Auth";
+import "../index.css"
 
 export default function TopNavbar() {
     const {user} = useContext(userContext)
