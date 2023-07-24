@@ -84,11 +84,11 @@ export function Post(){
     }
 
     return(
-        <div className="postwrapper row">
+        <div className="row h-100">
             <div className="col"></div>
             <div className="col-6">
-                    <div className="d-flex flex-column gap-1 ">
-                        <div className="pt-1">
+                    <div className="d-flex flex-column gap-2 pt-1 justify-content-start h-100 ">
+                        <div className="">
                             <CardEdit 
                                 info={{...post}}
                                 linkTo={`/post/${post.id}`} 
@@ -98,9 +98,7 @@ export function Post(){
                                 handleDislike={handleDislike}
                             ></CardEdit>
                         </div>
-                        <div>
-                            <CommentSection postId={id ? id : "1"}></CommentSection>
-                        </div>
+                        <CommentSection postId={id ? id : "1"}></CommentSection>
                     </div>
             </div>
             <div className="col"></div>

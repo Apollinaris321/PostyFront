@@ -76,14 +76,14 @@ export default function Home(){
     }
 
     return(
-        <div className="row">
+        <div className="row h-100">
             <div className="col"></div>
             <div className="col-6">
-                <div className="d-flex flex-column pt-1 gap-2">
-                    <div>
+                <div className="d-flex flex-column pt-1 gap-2 justify-content-between h-100">
+                    <div className="addPost">
                         <AddPost sendPost={handleSendPost}></AddPost>
                     </div>
-                    <div className="d-flex flex-column gap-2">
+                    <div className="d-flex flex-column gap-2 h-100">
                         {posts.map(p => {
                             return(
                                 <div key={p.id}>

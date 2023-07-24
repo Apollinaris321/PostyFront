@@ -28,28 +28,40 @@ code {
   gap: 1em;
 }
 
-.all{
-  height:100vh;
-}
-
-.postwrapper{
-  height: 100vh;
-}
-
-.wrapper{
-  height: 100vh;
-  padding-top: 1em;
-}
-
 .linkText{
   text-decoration: none;
+}
+
+.colorB{
   color: black;
 }
 
-.customLink{
-  text-decoration: none;
+.colorW{
   color: white;
 }
+
+.error{
+  color: rgba(240,0,0,0.8);
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.smallFont{
+  font-size: .8em;
+}
+
+.date{
+  color: rgba(0,0,0,0.4);
+}
+
+.like{
+  border: none;
+  background-color: white; 
+}
+
+.navbartext{
+  color: white;
+} 
 
 .postPreview{
   display: flex;
@@ -80,15 +92,18 @@ code {
   padding-bottom: .2em;
 }
 
-.date{
-  color: rgba(0,0,0,0.4);
+.home{
+  height: 100vh;
 }
 
-.like{
-  border: none;
-  background-color: white; 
+.addPost{
+  padding-bottom: 1em;
+  border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 
-.navbartext{
-  color: white;
+.loginForm{
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 1em;
+  padding: 1em 0 1em 0;
+  width: 50vw;
 }

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import  { useEffect, useState } from 'react';
 import {  RouterProvider } from 'react-router';
 import { createBrowserRouter } from 'react-router-dom';
 import Home from './pages/Home';
@@ -8,6 +7,8 @@ import { userContext, userInfo } from './user';
 import Profile from './pages/Profile';
 import TopNavbar from './components/Topnavbar';
 import { client } from './api';
+import { Auth } from './pages/Auth';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
@@ -43,6 +44,10 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile />
+        },
+        {
+          path: "login",
+          element: <Auth></Auth>
         }
       ]
     }

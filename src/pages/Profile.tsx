@@ -146,54 +146,56 @@ export default function Profile() {
     }   
 
     return(
-        <div className="row wrapper">
+        <div className="row home">
             <div className="col"></div>
             <div className="col-8">
-                <div className="d-flex flex-column gap-2">
-                    <ProfileCard profile={profile}></ProfileCard>
-                    <div className="d-flex flex-column gap-1">
-                        <div className="d-flex flex-row align-items-center justify-content-center gap-1">
-                            <button className={show  == "post" ?  "btn btn-primary" : "btn btn-outline-primary"} onClick={() => handleShow("post")}>post</button>
-                            <button className={show  == "comment" ?  "btn btn-primary" : "btn btn-outline-primary"} onClick={() => handleShow("comment")}>comment</button>
-                        </div>
-                        <div>
-                            {show == "post"?
-                            <div className="d-flex flex-column gap-2">
-                                {posts.map(post =>
-                                    <div key={post.id}>
-                                        <Card 
-                                            info={{...post}}
-                                            linkTo={`/post/${post.id}`}
-                                            handleDislike={handlePostDislike}
-                                            handleLike={handlePostLike}
-                                        />
-                                    </div>
-                                )}                           
+                <div className="d-flex flex-column pt-1 gap-2 justify-content-start h-100">
+                    <div>
+                        <ProfileCard profile={profile}></ProfileCard>
+                    </div>
+                    <div className="d-flex flex-row align-items-center justify-content-center gap-1">
+                        <button className={show  == "post" ?  "btn btn-primary" : "btn btn-outline-primary"} onClick={() => handleShow("post")}>post</button>
+                        <button className={show  == "comment" ?  "btn btn-primary" : "btn btn-outline-primary"} onClick={() => handleShow("comment")}>comment</button>
+                    </div>
+                    <div className="h-100">
+                        {show == "post"?
+                            <div className="d-flex flex-column gap-1 h-100 justify-content-between">
+                                <div className="d-flex flex-column gap-2 justify-content-between">
+                                    {posts.map(post =>
+                                        <div key={post.id}>
+                                            <Card 
+                                                info={{...post}}
+                                                linkTo={`/post/${post.id}`}
+                                                handleDislike={handlePostDislike}
+                                                handleLike={handlePostLike}
+                                            />
+                                        </div>
+                                    )}                           
+                                </div>
                                 <div className="d-flex align-items-center justify-content-center">
                                     <Page updatePage={getPosts} lastPage={postLastPage} page={postPage}></Page>
                                 </div>
                             </div>
                                 :
-                            <div className="d-flex flex-column gap-2">
-                                {comments.map(comment => 
-                                    <div key={comment.id}>
-                                        <Card 
-                                            info={{...comment}}
-                                            linkTo={`/post/${comment.postId}`}
-                                            handleDislike={handleCommentDislike}
-                                            handleLike={handleCommentLike}
-                                        />
-                                    </div>
-                                )}
+                            <div className="d-flex flex-column gap-1 h-100 justify-content-between">
+                                <div className="d-flex flex-column gap-2 justify-content-between">
+                                    {comments.map(comment => 
+                                        <div key={comment.id}>
+                                            <Card 
+                                                info={{...comment}}
+                                                linkTo={`/post/${comment.postId}`}
+                                                handleDislike={handleCommentDislike}
+                                                handleLike={handleCommentLike}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="d-flex align-items-center justify-content-center">
                                     <Page updatePage={getComments} lastPage={commentLastPage} page={commentPage}></Page>
                                 </div>
                             </div>
                         }
-                        </div>
                     </div>
-
-
                 </div>
             </div>
             <div className="col"></div>

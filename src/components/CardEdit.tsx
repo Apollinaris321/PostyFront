@@ -6,6 +6,8 @@ import { userContext, userInfo } from "../user"
 import { SatisfiesExpression } from "typescript"
 import { Post } from "../pages/Post"
 import { Comment } from "./Comment"
+import { MdDelete, MdDeleteOutline, MdDone, MdEdit, MdSave } from "react-icons/md"
+import { IconContext } from "react-icons"
 
 export type CardProp2 = {
     author : string,
@@ -53,7 +55,7 @@ export function CardEdit({ info , linkTo, handleDelete, handleUpdate, handleDisl
         <div className="postPreview">
             <div className="header">
                 <div className="authorName">
-                    <Link className="linkText" to={`/profile/${info.authorName}`}>
+                    <Link className="linkText colorB" to={`/profile/${info.authorName}`}>
                         @{info.authorName}
                     </Link>
                 </div>
@@ -74,7 +76,7 @@ export function CardEdit({ info , linkTo, handleDelete, handleUpdate, handleDisl
                             }
                     </div>
                     :
-                <Link className="linkText" to={linkTo}>
+                <Link className="linkText colorB" to={linkTo}>
                     <div className="title">
                             {
                                 edit ? 
@@ -92,10 +94,27 @@ export function CardEdit({ info , linkTo, handleDelete, handleUpdate, handleDisl
                         {info.likes}
                     </div>
                     <LikeButton dislike={handleDislike} like={handleLike} likedByYou={info.likedByYou} id={info.id}></LikeButton>
-                    { user?.username == info.authorName && edit == false ? <button className="btn btn-sm btn-primary" onClick={() => setEdit(true)}>edit</button> : null }
-                    { user?.username == info.authorName && edit == false ? <button className="btn btn-sm btn-danger" onClick={() => handleDelete(info.id)}>delete</button> : null }
-                    {edit ? <button className="btn btn-sm btn-primary" onClick={handleSave}>save</button> : null }
-                    {edit ? <button className="btn btn-sm btn-danger" onClick={handleDiscard}>discard</button> : null}
+                    { user?.username == info.authorName && edit == false ? <button className="btn btn-sm btn-primary" onClick={() => setEdit(true)}>
+                        <IconContext.Provider value={{size: "1.2em"}}>
+                            <MdEdit></MdEdit>
+                        </IconContext.Provider>
+                    </button> : null }
+                    { user?.username == info.authorName && edit == false ? <button className="btn btn-sm btn-danger" onClick={() => handleDelete(info.id)}>
+                        <IconContext.Provider value={{size: "1.2em"}}>
+                            <MdDeleteOutline></MdDeleteOutline>
+                        </IconContext.Provider>
+                    </button> : null }
+                    {edit ? 
+                    <button className="btn btn-sm btn-primary" onClick={handleSave}>
+                        Save
+                    </button>
+                     : null }
+                    {edit ? 
+                    <button className="btn btn-sm btn-danger" onClick={handleDiscard}>
+                        Discard
+
+                    </button>
+                     : null}
                 </div>
         </div>
     )

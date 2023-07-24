@@ -128,9 +128,9 @@ export function CommentSection({postId = "1" } : CommentSectionProps){
 
 
     return(
-        <div className="d-flex flex-column gap-2">
+        <div className="d-flex flex-column gap-2 h-100 justify-content-between">
             <AddComment postId={postId} addComment={handleAdd}></AddComment>
-            <div className="d-flex flex-column gap-2">
+            <div className="d-flex flex-column gap-2 h-100">
                 {comments.map(c => {
                     return(
                         <div key={c.id}>
@@ -168,7 +168,7 @@ function AddComment(prop : AddCommentProp){
             return;
         }
         prop.addComment(newComment)
-
+        setNewComment("")
     }
 
     function handleCommentInput(e : React.ChangeEvent<HTMLTextAreaElement>){
@@ -177,14 +177,22 @@ function AddComment(prop : AddCommentProp){
     }
 
     return(
-        <div className="d-flex flex-column gap-1 justify-content-center align-items-end">
-            {
-                error == "" ? 
-                null : 
-                <div>{error}</div>
+        <div className="d-flex flex-column gap-1 justify-content-center align-items-start addPost">
+            {error != "" ? 
+                <div className="error d-flex flex-row justify-content-center w-100 gap-1">
+                    <div>
+                        {error}
+                    </div>
+                    <div className="d-flex justify-content-center align-items-center">
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => setError("")}>x</button>
+                    </div>
+                </div>
+                 : null
             }
             <textarea className="form-control" rows={2} onChange={handleCommentInput} value={newComment}></textarea>
-            <button className="btn btn-primary" onClick={sendComment}>send</button>
+            <div>
+                <button className="btn btn-primary" onClick={sendComment}>send</button>
+            </div>
         </div>
     )
 }

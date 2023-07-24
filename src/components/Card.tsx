@@ -29,7 +29,7 @@ export function Card({info , linkTo, handleDislike, handleLike} : CardProp){
         <div className="postPreview">
             <div className="header">
                 <div className="authorName">
-                    <Link className="linkText" to={`/profile/${info.authorName}`}>
+                    <Link className="linkText colorB" to={`/profile/${info.authorName}`}>
                         @{info.authorName}
                     </Link>
                 </div>
@@ -37,7 +37,7 @@ export function Card({info , linkTo, handleDislike, handleLike} : CardProp){
                     {convertDateTime(info.createdAt)}
                 </div>
             </div>
-                <Link className="linkText" to={linkTo}>
+                <Link className="linkText colorB" to={linkTo}>
                     <div className="title">
                         <div className="fs-4 d-flex align-content-center justify-content-start">
                             {info.text}
