@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Button, Form } from "react-bootstrap"
 
 export type AddPostProp = {
     sendPost : (text : string) => void
